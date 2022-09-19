@@ -2,6 +2,7 @@ package main
 
 import (
 	"bookserver/config"
+	"bookserver/table"
 	"bookserver/webserver"
 	"context"
 	"fmt"
@@ -32,28 +33,45 @@ func Run(s *webserver.Server, ctx context.Context) error {
 	return eg.Wait()
 }
 
-func Setup() (*webserver.Server, error) {
+func Setup() (*table.Config, *webserver.Server, error) {
+	//set up config
 	cfgdata, err := config.Envread()
+	if err != nil {
+		return nil, nil, err
+	}
+	//set up DB
+	sql, err := table.Setup(cfgdata)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	//Set up webserver
 	cfg, err := webserver.NewSetup(cfgdata)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	h, err := setupbaseRoute()
 	if err != nil {
-		return nil, err
+		return nil, nil, err
+	}
+	err = h.setupdatabase(sql)
+	if err != nil {
+		return nil, nil, err
 	}
 	h.setupRoute(cfg)
-	return cfg.NewServer()
+	s, err := cfg.NewServer()
+	return sql, s, err
 
 }
 
 func main() {
-	s, err := Setup()
+	sql, s, err := Setup()
 	if err != nil {
 		log.Println(err)
 		os.Exit(1)
 		return
 	}
+	defer sql.Close()
 	ctx := context.Background()
 	if err := Run(s, ctx); err != nil {
 		log.Println(err)

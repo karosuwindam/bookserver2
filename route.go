@@ -2,6 +2,7 @@ package main
 
 import (
 	"bookserver/fileupload"
+	"bookserver/table"
 	"bookserver/textread"
 	"bookserver/webserver"
 	"fmt"
@@ -16,6 +17,7 @@ const (
 
 type Htmldata struct {
 	uploadpass *fileupload.UploadPass
+	sql        *table.Config
 }
 
 type HealthMessage struct {
@@ -103,6 +105,7 @@ func home(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Path: %v", r.URL.Path[1:])
 }
 
+//ベースルートの設定
 func setupbaseRoute() (Htmldata, error) {
 	var err error
 	output := Htmldata{}
@@ -114,6 +117,15 @@ func setupbaseRoute() (Htmldata, error) {
 	return output, nil
 }
 
+//データベースの設定
+func (t *Htmldata) setupdatabase(cfg *table.Config) error {
+	t.sql = cfg
+	cfg.Open()
+
+	return nil
+}
+
+//ルートの構築
 func (t *Htmldata) setupRoute(cfg *webserver.SetupServer) {
 	cfg.Add("/v1/", t.v1)
 	cfg.Add("/health", t.health)
