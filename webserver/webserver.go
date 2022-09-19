@@ -1,17 +1,16 @@
 package webserver
 
 import (
+	"bookserver/config"
 	"log"
 	"net"
 	"net/http"
-
-	"github.com/caarlos0/env/v6"
 )
 
 type SetupServer struct {
-	Protocol string `env:"PROTOCOL" envDefault:"tcp"`
-	Hostname string `env:"WEB_HOST" envDefault:""`
-	Port     string `env:"WEB_PORT" envDefault:"8080"`
+	protocol string
+	hostname string
+	port     string
 
 	mux *http.ServeMux
 }
@@ -25,18 +24,19 @@ type Status struct {
 	Status string `json:status`
 }
 
-func NewSetup() (*SetupServer, error) {
-	cfg := &SetupServer{}
-	if err := env.Parse(cfg); err != nil {
-		return nil, err
+func NewSetup(data *config.Config) (*SetupServer, error) {
+	cfg := &SetupServer{
+		protocol: data.Server.Protocol,
+		hostname: data.Server.Hostname,
+		port:     data.Server.Port,
 	}
 	cfg.mux = http.NewServeMux()
 	return cfg, nil
 }
 
 func (t *SetupServer) NewServer() (*Server, error) {
-	log.Println("Setupserver", t.Protocol, t.Hostname+":"+t.Port)
-	l, err := net.Listen(t.Protocol, t.Hostname+":"+t.Port)
+	log.Println("Setupserver", t.protocol, t.hostname+":"+t.port)
+	l, err := net.Listen(t.protocol, t.hostname+":"+t.port)
 	if err != nil {
 		return nil, err
 	}

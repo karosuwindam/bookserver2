@@ -18,6 +18,11 @@ type Htmldata struct {
 	uploadpass *fileupload.UploadPass
 }
 
+type HealthMessage struct {
+	name string
+	msg  string
+}
+
 //静的HTMLのページを返す
 func viewhtml(w http.ResponseWriter, r *http.Request) {
 	textdata := []string{".html", ".htm", ".css", ".js"}
@@ -81,6 +86,19 @@ func (t *Htmldata) v1(w http.ResponseWriter, r *http.Request) {
 
 }
 
+func (t *Htmldata) health(w http.ResponseWriter, r *http.Request) {
+	output := ""
+	msg := []HealthMessage{}
+	msg = append(msg, HealthMessage{name: t.uploadpass.Name(), msg: t.uploadpass.Message()})
+	for _, tmp := range msg {
+		if tmp.msg != "OK" {
+		}
+		output += tmp.name + ":" + tmp.msg
+
+	}
+	fmt.Fprintln(w, output)
+}
+
 func home(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Path: %v", r.URL.Path[1:])
 }
@@ -98,5 +116,6 @@ func setupbaseRoute() (Htmldata, error) {
 
 func (t *Htmldata) setupRoute(cfg *webserver.SetupServer) {
 	cfg.Add("/v1/", t.v1)
+	cfg.Add("/health", t.health)
 	cfg.Add("/", viewhtml)
 }

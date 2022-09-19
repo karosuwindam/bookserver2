@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bookserver/config"
 	"bookserver/webserver"
 	"context"
 	"fmt"
@@ -32,7 +33,8 @@ func Run(s *webserver.Server, ctx context.Context) error {
 }
 
 func Setup() (*webserver.Server, error) {
-	cfg, err := webserver.NewSetup()
+	cfgdata, err := config.Envread()
+	cfg, err := webserver.NewSetup(cfgdata)
 	if err != nil {
 		return nil, err
 	}
