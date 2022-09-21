@@ -11,7 +11,7 @@ type SetupServer struct {
 type SetupSql struct {
 	DBNAME string `env:"DB_NAME" envDefault:"mysql"`
 	DBHOST string `env:"DB_HOST" envDefault:"127.0.0.1"`
-	DBPORT int    `env:"DB_PORT" envDefault:3306`
+	DBPORT string `env:"DB_PORT" envDefault:"3306"`
 	DBUSER string `env:"DB_USER" envDefault:""`
 	DBPASS string `env:"DB_PASS" envDefault:""`
 	DBFILE string `env:"DB_FILE" envDefault:""`

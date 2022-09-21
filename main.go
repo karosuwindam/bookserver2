@@ -12,6 +12,9 @@ import (
 	"syscall"
 
 	"golang.org/x/sync/errgroup"
+	
+	_ "github.com/go-sql-driver/mysql"
+	_ "github.com/mattn/go-sqlite3"
 )
 
 func Run(s *webserver.Server, ctx context.Context) error {
