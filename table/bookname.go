@@ -18,7 +18,15 @@ type booknames struct {
 	Updated_at time.Time `json:"updated_at" db:"updated_at" type:"time`
 }
 
-func Read() {
+func booknames_table_used(v ...any) bool {
+	return false
+}
+
+func booknames_Update(sqltype string, rows *sql.Rows, id int, v ...any) {
+
+}
+
+func booknames_Insart(sqltype string, rows *sql.Rows) {
 
 }
 

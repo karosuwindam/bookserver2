@@ -13,8 +13,8 @@ const (
 
 func dbread(sqltype string, rows *sql.Rows, t_name string) (interface{}, error) {
 
-	switch t_name {
-	case "booknames":
+	switch tablename(t_name) {
+	case Booknames:
 		return booknames_Read(sqltype, rows)
 	default:
 	}
