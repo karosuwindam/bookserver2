@@ -3,9 +3,7 @@ package table
 import (
 	"bookserver/config"
 	"database/sql"
-	"encoding/json"
 	"errors"
-	"fmt"
 	"log"
 )
 
@@ -50,13 +48,13 @@ func (cfg *Config) Open() error {
 	if err == nil {
 		log.Println("SQL server open")
 
-		data, _ := cfg.ReadAll(string(Booknames))
-		fmt.Println(data)
-		if jsondata, err1 := json.Marshal(data); err1 == nil {
-			fmt.Println(string(jsondata))
+		// data, _ := cfg.ReadAll(Copyfile)
+		// fmt.Println(data)
+		// if jsondata, err1 := json.Marshal(data); err1 == nil {
+		// 	fmt.Println(string(jsondata))
 
-		}
-		cfg.sqlite3_close()
+		// }
+		// cfg.sqlite3_close()
 	}
 	return err
 }
@@ -67,7 +65,7 @@ func (cfg *Config) Close() {
 
 }
 
-func (cfg *Config) ReadAll(t_name string) ([]any, error) {
+func (cfg *Config) ReadAll(t_name tablename) ([]any, error) {
 	switch cfg.Db_name {
 	case "mysql":
 	case "sqlite3":
