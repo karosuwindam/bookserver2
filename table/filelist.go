@@ -12,13 +12,14 @@ import (
 //主に、表の画面で使用される
 
 type filelists struct {
-	Id         int       `json:"id"`
-	Name       string    `json:"name"`
-	Pdfpass    string    `json:"pdfpass"`
-	Zippass    string    `json:"zippass`
-	Tag        string    `json:"tag"`
-	Created_at time.Time `json:"created_at"`
-	Updated_at time.Time `json:"updated_at"`
+	Id         int       `json:"id" db:"id"`
+	Name       string    `json:"name" db:"name"`
+	Pdfpass    string    `json:"pdfpass" db:"pdfpass"`
+	Zippass    string    `json:"zippass" db:"zippass"`
+	Tag        string    `json:"tag" db:"tag"`
+	Sp         string    `json:"sp" db:"sp"`
+	Created_at time.Time `json:"created_at" db:"created_at"`
+	Updated_at time.Time `json:"updated_at" db:"updated_at"`
 }
 
 func convert_filelist(v ...any) (filelists, error) {
@@ -32,10 +33,8 @@ func convert_filelist(v ...any) (filelists, error) {
 	output.Pdfpass = v[2].(string)
 	output.Zippass = v[3].(string)
 	output.Tag = v[4].(string)
-	ctime := v[5].(string)
-	utime := v[6].(string)
-	output.Created_at, err = timeconvert(ctime)
-	output.Updated_at, err = timeconvert(utime)
+	output.Created_at = v[5].(time.Time)
+	output.Updated_at = v[6].(time.Time)
 
 	return output, err
 }

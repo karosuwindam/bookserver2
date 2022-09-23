@@ -30,8 +30,7 @@ func Setup(data *config.Config) (*Config, error) {
 
 	//Defult
 	output.Db_name = "sqlite3"
-	output.Db_file = "./db/development.sqlite3"
-	// output.Db_file = "./db/test1.db"
+	// output.Db_file = "development.sqlite3"
 
 	return output, nil
 }
@@ -65,6 +64,20 @@ func (cfg *Config) Close() {
 
 }
 
+//Table作成
+func (cfg *Config) Create_Table() error {
+	switch cfg.Db_name {
+	case "mysql":
+	case "sqlite3":
+		return cfg.sqlite3_table_create()
+	default:
+
+	}
+
+	return errors.New("Don't create db table")
+}
+
+//テーブル内のすべてのデータ読み取り
 func (cfg *Config) ReadAll(t_name tablename) ([]any, error) {
 	switch cfg.Db_name {
 	case "mysql":

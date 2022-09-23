@@ -5,6 +5,7 @@ import (
 	"bookserver/table"
 	"bookserver/webserver"
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 	"os"
@@ -12,7 +13,7 @@ import (
 	"syscall"
 
 	"golang.org/x/sync/errgroup"
-	
+
 	_ "github.com/go-sql-driver/mysql"
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -74,12 +75,21 @@ func main() {
 		os.Exit(1)
 		return
 	}
+
+	// SQLの読み込みテスト
+	data, err := sql.ReadAll(table.Copyfile)
+	if err != nil {
+
+	}
+	jsondata, _ := json.Marshal(data)
+	fmt.Println(string(jsondata))
+
 	defer sql.Close()
 	ctx := context.Background()
 	if err := Run(s, ctx); err != nil {
 		log.Println(err)
 		os.Exit(1)
 	}
-	fmt.Println("end")
+	log.Println("program end")
 
 }
