@@ -3,8 +3,12 @@ package table
 import (
 	"database/sql"
 	"errors"
+	"reflect"
+	"strconv"
 	"time"
 )
+
+//読み書き用のベースになるデータベース
 
 type booknames struct {
 	Id         int       `json:"id" db:"id" type:"int"`
@@ -16,6 +20,37 @@ type booknames struct {
 	Ext        string    `json:"ext" db:"ext" type:"string"`
 	Created_at time.Time `json:"created_at" db:"created_at" type:"time"`
 	Updated_at time.Time `json:"updated_at" db:"updated_at" type:"time`
+}
+
+func convert_booknames(v ...any) (booknames, error) {
+	var output booknames
+	var err error = nil
+	if len(v) != reflect.TypeOf(booknames{}).NumField() {
+		return booknames{}, errors.New("Input data count err " + strconv.Itoa(len(v)))
+	}
+	i := 0
+	output.Id = v[i].(int)
+	i++
+	output.Name = v[i].(string)
+	i++
+	output.Title = v[i].(string)
+	i++
+	output.Writer = v[i].(string)
+	i++
+	output.Brand = v[i].(string)
+	i++
+	output.Booktype = v[i].(string)
+	i++
+	output.Ext = v[i].(string)
+	i++
+	ctime := v[i].(string)
+	i++
+	utime := v[i].(string)
+	i++
+	output.Created_at, err = timeconvert(ctime)
+	output.Updated_at, err = timeconvert(utime)
+
+	return output, err
 }
 
 func booknames_table_used(v ...any) bool {
@@ -42,26 +77,14 @@ func booknames_Read(sqltype string, rows *sql.Rows) (booknames, error) {
 }
 
 func booknames_Read_sqlite3(rows *sql.Rows) (booknames, error) {
-	var err error
-	tmp := booknames{}
-	var layout1 = "2006-01-02T15:04:05.999999Z"
-	var layout2 = "2006-01-02 15:04:05.999999999"
-	c_time_tmp := ""
-	u_time_tmp := ""
-	if err := rows.Scan(&tmp.Id, &tmp.Name, &tmp.Title, &tmp.Writer, &tmp.Brand, &tmp.Booktype, &tmp.Ext, &c_time_tmp, &u_time_tmp); err != nil {
-		return tmp, err
+	data := booknames{}
+	tmp, err := Read_Sqlite3(rows, data)
+	if err != nil {
+		return booknames{}, err
 	}
-	if tmp.Created_at, err = time.Parse(layout1, c_time_tmp); err != nil {
-		if tmp.Created_at, err = time.Parse(layout2, c_time_tmp); err != nil {
-			return tmp, err
-		}
-	}
-	if tmp.Updated_at, err = time.Parse(layout1, u_time_tmp); err != nil {
-		if tmp.Updated_at, err = time.Parse(layout2, u_time_tmp); err != nil {
-			return tmp, err
-		}
-	}
-	return tmp, nil
+	output, err := convert_booknames(tmp...)
+
+	return output, nil
 }
 
 func booknames_Read_mysql(rows *sql.Rows) (booknames, error) {
