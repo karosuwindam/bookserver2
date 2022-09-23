@@ -14,7 +14,7 @@ type SetupSql struct {
 	DBPORT string `env:"DB_PORT" envDefault:"3306"`
 	DBUSER string `env:"DB_USER" envDefault:""`
 	DBPASS string `env:"DB_PASS" envDefault:""`
-	DBFILE string `env:"DB_FILE" envDefault:""`
+	DBFILE string `env:"DB_FILE" envDefault:"test.db"`
 }
 
 type Config struct {

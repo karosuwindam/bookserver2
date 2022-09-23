@@ -11,15 +11,15 @@ import (
 //読み書き用のベースになるデータベース
 
 type booknames struct {
-	Id         int       `json:"id" db:"id" type:"int"`
-	Name       string    `json:"name" db:"name" type:"string"`
-	Title      string    `json:"title" db:"title" type:"string"`
-	Writer     string    `json:"writer db:"writer" type:"string"`
-	Brand      string    `json:"brand" db:"brand" type:"string"`
-	Booktype   string    `json:"booktype" db:"booktype" type:"string"`
-	Ext        string    `json:"ext" db:"ext" type:"string"`
-	Created_at time.Time `json:"created_at" db:"created_at" type:"time"`
-	Updated_at time.Time `json:"updated_at" db:"updated_at" type:"time`
+	Id         int       `json:"id" db:"id"`
+	Name       string    `json:"name" db:"name"`
+	Title      string    `json:"title" db:"title"`
+	Writer     string    `json:"writer" db:"writer"`
+	Brand      string    `json:"brand" db:"brand"`
+	Booktype   string    `json:"booktype" db:"booktype"`
+	Ext        string    `json:"ext" db:"ext"`
+	Created_at time.Time `json:"created_at" db:"created_at"`
+	Updated_at time.Time `json:"updated_at" db:"updated_at"`
 }
 
 func convert_booknames(v ...any) (booknames, error) {
@@ -43,12 +43,9 @@ func convert_booknames(v ...any) (booknames, error) {
 	i++
 	output.Ext = v[i].(string)
 	i++
-	ctime := v[i].(string)
+	output.Created_at = v[i].(time.Time)
 	i++
-	utime := v[i].(string)
-	i++
-	output.Created_at, err = timeconvert(ctime)
-	output.Updated_at, err = timeconvert(utime)
+	output.Updated_at = v[i].(time.Time)
 
 	return output, err
 }

@@ -5,15 +5,23 @@ import (
 	"time"
 )
 
+const (
+	Basefolder = "./db/"
+)
+
 func (cfg *Config) sqlite3_open() error {
 	var err error
-	cfg.db, err = sql.Open("sqlite3", cfg.Db_file)
+	cfg.db, err = sql.Open("sqlite3", Basefolder+cfg.Db_file)
 	return err
 
 }
 
 func (cfg *Config) sqlite3_close() {
 	cfg.db.Close()
+}
+
+func (cfg *Config) sqlite3_table_create() error {
+	return tablecreate(cfg.Db_name, cfg.db)
 }
 
 func (cfg *Config) sqlite3_ReadAll(t_name tablename) ([]any, error) {

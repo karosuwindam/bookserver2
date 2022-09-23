@@ -119,8 +119,13 @@ func setupbaseRoute() (Htmldata, error) {
 
 //データベースの設定
 func (t *Htmldata) setupdatabase(cfg *table.Config) error {
+	if err := cfg.Open(); err != nil { //sql open
+		return err
+	}
+	if err := cfg.Create_Table(); err != nil { //create sql table
+		return err
+	}
 	t.sql = cfg
-	cfg.Open()
 
 	return nil
 }

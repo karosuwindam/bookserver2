@@ -7,3 +7,4 @@
   * booknamesテーブル
   * copyfileテーブル
   * filelistsテーブル
+* 変数の型から自動で、SQLのテーブルを作成する機能を追加

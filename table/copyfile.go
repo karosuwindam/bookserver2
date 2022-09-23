@@ -10,12 +10,12 @@ import (
 
 // NextCloud連携用のSamba共有しているフォルダについて置いてあるFileの記録
 type copyfile struct {
-	Id         int       `json:"id"`
-	Zippass    string    `json:"zippass`
-	Filesize   int       `json:"filesize`
-	Copyflag   int       `json:"copyflag"`
-	Created_at time.Time `json:"created_at"`
-	Updated_at time.Time `json:"updated_at"`
+	Id         int       `json:"id" db:"id"`
+	Zippass    string    `json:"zippass" db:"zippass"`
+	Filesize   int       `json:"filesize" db:"filesize"`
+	Copyflag   int       `json:"copyflag" db:"copyflag"`
+	Created_at time.Time `json:"created_at" db:"created_at"`
+	Updated_at time.Time `json:"updated_at" db:"updated_at"`
 }
 
 func convert_copyfile(v ...any) (copyfile, error) {
@@ -33,12 +33,9 @@ func convert_copyfile(v ...any) (copyfile, error) {
 	i++
 	output.Copyflag = v[i].(int)
 	i++
-	ctime := v[i].(string)
+	output.Created_at = v[i].(time.Time)
 	i++
-	utime := v[i].(string)
-	i++
-	output.Created_at, err = timeconvert(ctime)
-	output.Updated_at, err = timeconvert(utime)
+	output.Updated_at = v[i].(time.Time)
 
 	return output, err
 }
