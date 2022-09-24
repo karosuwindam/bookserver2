@@ -24,6 +24,29 @@ func (cfg *Config) sqlite3_table_create() error {
 	return tablecreate(cfg.Db_name, cfg.db)
 }
 
+//追加処理
+func (cfg *Config) sqlite3_Add(t_name Tablename) error {
+	return nil
+}
+
+func (cfg *Config) sqlite3_Read(t_name Tablename, v ...interface{}) ([]any, error) {
+	cmd := "SELECT * FROM " + string(t_name)
+	var output []interface{}
+	rows, err := cfg.db.Query(cmd)
+	if err != nil {
+		return nil, err
+	}
+	for rows.Next() {
+		tmp, err := dballread(cfg.Db_name, rows, t_name)
+		if err != nil {
+			return output, err
+		}
+		output = append(output, tmp)
+	}
+
+	return output, nil
+}
+
 func (cfg *Config) sqlite3_ReadAll(t_name Tablename) ([]any, error) {
 	cmd := "SELECT * FROM " + string(t_name)
 	var output []interface{}

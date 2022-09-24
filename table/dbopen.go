@@ -97,3 +97,16 @@ func (cfg *Config) ReadAll(t_name Tablename) ([]any, error) {
 	}
 	return nil, errors.New("Don't select db type")
 }
+
+//テーブル内の特定カラムによる読み取り
+func (cfg *Config) Read(t_name Tablename, v ...interface{}) ([]any, error) {
+	switch cfg.Db_name {
+	case "mysql":
+	case "sqlite3":
+		return cfg.sqlite3_Read(t_name, v)
+	default:
+
+	}
+	return nil, errors.New("Don't select db type")
+
+}
