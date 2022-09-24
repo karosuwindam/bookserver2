@@ -5,8 +5,6 @@ import (
 	"bookserver/table"
 	"bookserver/webserver"
 	"context"
-	"encoding/json"
-	"fmt"
 	"log"
 	"os"
 	"os/signal"
@@ -77,12 +75,12 @@ func main() {
 	}
 
 	// SQLの読み込みテスト
-	data, err := sql.ReadAll(table.Copyfile)
-	if err != nil {
+	// data, err := sql.ReadAll(table.Copyfile)
+	// if err != nil {
 
-	}
-	jsondata, _ := json.Marshal(data)
-	fmt.Println(string(jsondata))
+	// }
+	// jsondata, _ := json.Marshal(data)
+	// fmt.Println(string(jsondata))
 
 	defer sql.Close()
 	ctx := context.Background()

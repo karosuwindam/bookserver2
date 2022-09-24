@@ -17,7 +17,6 @@ type filelists struct {
 	Pdfpass    string    `json:"pdfpass" db:"pdfpass"`
 	Zippass    string    `json:"zippass" db:"zippass"`
 	Tag        string    `json:"tag" db:"tag"`
-	Sp         string    `json:"sp" db:"sp"`
 	Created_at time.Time `json:"created_at" db:"created_at"`
 	Updated_at time.Time `json:"updated_at" db:"updated_at"`
 }
@@ -58,7 +57,7 @@ func filelists_Read_sqlite3(rows *sql.Rows) (filelists, error) {
 	}
 	output, err := convert_filelist(tmp...)
 
-	return output, nil
+	return output, err
 }
 func filelists_Read_mysql(rows *sql.Rows) (filelists, error) {
 	return filelists{}, nil

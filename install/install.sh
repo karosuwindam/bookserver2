@@ -1,5 +1,8 @@
 #!/usr/bin/bash
 
+
+sudo apt install jq sqlite3 -y
+
 go_version=1.18
 
 curl -OL https://go.dev/dl/go$go_version.linux-arm64.tar.gz &&\
