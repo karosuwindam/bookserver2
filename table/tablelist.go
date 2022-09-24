@@ -9,18 +9,18 @@ import (
 	"time"
 )
 
-type tablename string
+type Tablename string
 
 type createTableS struct {
-	name tablename
+	name Tablename
 	cmd  string
 	st   interface{}
 }
 
 const (
-	Booknames tablename = "booknames"
-	Filelists tablename = "filelists"
-	Copyfile  tablename = "copyfile"
+	Booknames Tablename = "booknames"
+	Filelists Tablename = "filelists"
+	Copyfile  Tablename = "copyfile"
 )
 
 func tablecreate(sqltype string, sql *sql.DB) error {
@@ -147,7 +147,7 @@ func (t *createTableS) createCmd(sqltype string) error {
 
 }
 
-func dballread(sqltype string, rows *sql.Rows, t_name tablename) (interface{}, error) {
+func dballread(sqltype string, rows *sql.Rows, t_name Tablename) (interface{}, error) {
 
 	switch t_name {
 	case Booknames:

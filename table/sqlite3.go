@@ -24,7 +24,7 @@ func (cfg *Config) sqlite3_table_create() error {
 	return tablecreate(cfg.Db_name, cfg.db)
 }
 
-func (cfg *Config) sqlite3_ReadAll(t_name tablename) ([]any, error) {
+func (cfg *Config) sqlite3_ReadAll(t_name Tablename) ([]any, error) {
 	cmd := "SELECT * FROM " + string(t_name)
 	var output []interface{}
 	rows, err := cfg.db.Query(cmd)

@@ -15,6 +15,7 @@ type Config struct {
 	Db_pass string  `json:"pasword"`  //SQLの接続パス
 	Db_file string  `json:"filepass"` //SQLデータベース接続ファイルパス
 	db      *sql.DB //開いたSQLについて
+	Message string  //Helth checkに渡す用
 }
 
 //基本の設定
@@ -30,7 +31,7 @@ func Setup(data *config.Config) (*Config, error) {
 
 	//Defult
 	output.Db_name = "sqlite3"
-	// output.Db_file = "development.sqlite3"
+	output.Db_file = "development.sqlite3"
 
 	return output, nil
 }
@@ -45,7 +46,9 @@ func (cfg *Config) Open() error {
 	default:
 	}
 	if err == nil {
-		log.Println("SQL server open")
+		msg := "SQL server open"
+		log.Println(msg)
+		cfg.Message = msg
 
 		// data, _ := cfg.ReadAll(Copyfile)
 		// fmt.Println(data)
@@ -60,8 +63,9 @@ func (cfg *Config) Open() error {
 
 //DBを閉じる
 func (cfg *Config) Close() {
-	log.Println("SQL server close")
-
+	msg := "SQL server close"
+	log.Println(msg)
+	cfg.Message = msg
 }
 
 //Table作成
@@ -77,8 +81,13 @@ func (cfg *Config) Create_Table() error {
 	return errors.New("Don't create db table")
 }
 
+//Tableリストの読み取り
+func (cfg *Config) List_Table() ([]string, error) {
+	return tableList(cfg.Db_name, cfg.db)
+}
+
 //テーブル内のすべてのデータ読み取り
-func (cfg *Config) ReadAll(t_name tablename) ([]any, error) {
+func (cfg *Config) ReadAll(t_name Tablename) ([]any, error) {
 	switch cfg.Db_name {
 	case "mysql":
 	case "sqlite3":
