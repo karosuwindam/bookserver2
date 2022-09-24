@@ -5,6 +5,7 @@ import (
 	"bookserver/table"
 	"bookserver/textread"
 	"bookserver/webserver"
+	"bookserver/websqlread"
 	"fmt"
 	"log"
 	"net/http"
@@ -18,6 +19,7 @@ const (
 type Htmldata struct {
 	uploadpass *fileupload.UploadPass
 	sql        *table.Config
+	sqlread    *websqlread.WebSqlRead
 }
 
 type HealthMessage struct {
@@ -76,6 +78,8 @@ func (t *Htmldata) v1(w http.ResponseWriter, r *http.Request) {
 			fmt.Fprintf(w, "Err API request")
 		case "upload":
 			fileupload.FIleupload(t.uploadpass, w, r)
+		case "read":
+			websqlread.Websqlread(t.sqlread, w, r)
 		default:
 			fmt.Fprintf(w, "%s", r.URL.Path)
 		}
@@ -91,7 +95,8 @@ func (t *Htmldata) v1(w http.ResponseWriter, r *http.Request) {
 func (t *Htmldata) health(w http.ResponseWriter, r *http.Request) {
 	output := ""
 	msg := []HealthMessage{}
-	msg = append(msg, HealthMessage{name: t.uploadpass.Name(), msg: t.uploadpass.Message()})
+	msg = append(msg, HealthMessage{name: t.uploadpass.Name(), msg: t.uploadpass.Message()}) //upload
+	msg = append(msg, HealthMessage{name: t.sql.Db_name, msg: t.sql.Message})                //sql
 	for _, tmp := range msg {
 		if tmp.msg != "OK" {
 		}
@@ -119,8 +124,14 @@ func setupbaseRoute() (Htmldata, error) {
 
 //データベースの設定
 func (t *Htmldata) setupdatabase(cfg *table.Config) error {
+	if err := cfg.Open(); err != nil { //sql open
+		return err
+	}
+	if err := cfg.Create_Table(); err != nil { //create sql table
+		return err
+	}
 	t.sql = cfg
-	cfg.Open()
+	t.sqlread, _ = websqlread.Setup(cfg)
 
 	return nil
 }

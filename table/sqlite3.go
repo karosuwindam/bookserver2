@@ -2,11 +2,16 @@ package table
 
 import (
 	"database/sql"
+	"time"
+)
+
+const (
+	Basefolder = "./db/"
 )
 
 func (cfg *Config) sqlite3_open() error {
 	var err error
-	cfg.db, err = sql.Open("sqlite3", cfg.Db_file)
+	cfg.db, err = sql.Open("sqlite3", Basefolder+cfg.Db_file)
 	return err
 
 }
@@ -15,56 +20,38 @@ func (cfg *Config) sqlite3_close() {
 	cfg.db.Close()
 }
 
-// func (cfg *Config) sqlite3_ReadAll(v ...any) error {
-// 	//メタデータ解析
-// 	var readdata []interface{}
-// 	rt := reflect.TypeOf(v[0])
-// 	for i := 0; i < rt.NumField(); i++ {
-// 		f := rt.Field(i)
-// 		readdata = append(readdata, checkdata(f))
-// 		fmt.Println(f.Name, f.Type, f.Tag.Get("db"), f.Tag.Get("type"))
-// 	}
-// 	//sql構文作成
-// 	cmd := "SELECT * FROM " + "booknames"
-// 	//sqlによる読み込み
-// 	rows, err := cfg.db.Query(cmd)
-// 	if err != nil {
-// 		return err
-// 	}
-// 	for rows.Next() {
-// 		rows.Scan(v...)
-// 	}
-// 	return nil
-// }
+func (cfg *Config) sqlite3_table_create() error {
+	return tablecreate(cfg.Db_name, cfg.db)
+}
 
-// func checkdata(v reflect.StructField) any {
-// 	switch v.Type.Kind() {
-// 	case reflect.Int:
-// 		return int64(0)
-// 	case reflect.String:
-// 		return string("")
-// 	case reflect.Struct:
-// 		return time.Time{}
-// 	default:
-// 		fmt.Println(v.Type.Kind())
-// 		return int(0)
-// 	}
-// }
-
-func (cfg *Config) sqlite3_ReadAll(t_name string) ([]any, error) {
-	cmd := "SELECT * FROM " + t_name
+func (cfg *Config) sqlite3_ReadAll(t_name Tablename) ([]any, error) {
+	cmd := "SELECT * FROM " + string(t_name)
 	var output []interface{}
 	rows, err := cfg.db.Query(cmd)
 	if err != nil {
 		return nil, err
 	}
 	for rows.Next() {
-		tmp, err := dbread(cfg.Db_name, rows, t_name)
+		tmp, err := dballread(cfg.Db_name, rows, t_name)
 		if err != nil {
 			return output, err
 		}
 		output = append(output, tmp)
 	}
 
+	return output, nil
+}
+
+//sqliteの時間文字列を変換
+func timeconvert(timdata string) (time.Time, error) {
+	var err error
+	var output time.Time
+	var layout1 = "2006-01-02T15:04:05.999999Z"
+	var layout2 = "2006-01-02 15:04:05.999999999"
+	if output, err = time.Parse(layout1, timdata); err != nil {
+		if output, err = time.Parse(layout2, timdata); err != nil {
+			return output, err
+		}
+	}
 	return output, nil
 }
