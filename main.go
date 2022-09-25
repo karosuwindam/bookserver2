@@ -2,6 +2,7 @@ package main
 
 import (
 	"bookserver/config"
+	"bookserver/message"
 	"bookserver/table"
 	"bookserver/webserver"
 	"context"
@@ -21,7 +22,7 @@ func Run(s *webserver.Server, ctx context.Context) error {
 	defer stop()
 	eg, ctx := errgroup.WithContext(ctx)
 	eg.Go(func() error {
-		log.Println("Start Server")
+		message.Printf("Start Server\n")
 		if err := s.Srv.Serve((s.L)); err != nil {
 			return err
 		}
@@ -31,7 +32,7 @@ func Run(s *webserver.Server, ctx context.Context) error {
 	if err := s.Srv.Shutdown(context.Background()); err != nil {
 		log.Println(err)
 	}
-	log.Println("shutdown")
+	message.Println("shutdown")
 	return eg.Wait()
 }
 
@@ -81,6 +82,15 @@ func main() {
 	// }
 	// jsondata, _ := json.Marshal(data)
 	// fmt.Println(string(jsondata))
+	// // SQLの読み込みテスト2
+	// v := map[string]interface{}{}
+	// v["name"] = "bakatesu"
+	// data, err := sql.Search(table.Booknames, v)
+	// if err != nil {
+
+	// }
+	// jsondata, _ := json.Marshal(data)
+	// fmt.Println(string(jsondata))
 
 	defer sql.Close()
 	ctx := context.Background()
@@ -88,6 +98,6 @@ func main() {
 		log.Println(err)
 		os.Exit(1)
 	}
-	log.Println("program end")
+	message.Println("program end")
 
 }
