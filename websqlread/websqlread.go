@@ -15,7 +15,7 @@ import (
 type WebSqlRead struct {
 	sql       *sql.DB
 	sqlconfig *table.Config
-	msg       message.Message
+	rst       message.Result
 	table     []table.Tablename
 }
 
@@ -34,39 +34,45 @@ func Setup(sql *table.Config) (*WebSqlRead, error) {
 	output := &WebSqlRead{}
 	output.sqlconfig = sql
 	output.table = []table.Tablename{table.Booknames, table.Copyfile, table.Filelists}
-	output.msg = message.Message{Name: "sqlread", Status: "OK", Code: http.StatusOK}
+	output.rst = message.Result{Name: "SQL Read", Code: http.StatusOK}
 	return output, err
 }
 
 //メッセージのバック
 func (t *WebSqlRead) outputmessage(w http.ResponseWriter) {
-	fmt.Fprintf(w, "%v", t.msg.Output())
+	w.WriteHeader(t.rst.Code)
+	fmt.Fprintf(w, "%v", t.rst.Output())
 }
 
 //Getread idによる読み取り
 func (t *WebSqlRead) getSqlRead(id int, table table.Tablename, w http.ResponseWriter, r *http.Request) {
-	result := message.Result{Name: "SQL Read", Date: time.Now()}
+	t.rst.Result = nil
+	// result := message.Result{Name: "SQL Read", Date: time.Now()}
 	if table == "" {
+		t.rst.Code = http.StatusNoContent
 		t.outputmessage(w)
 		return
 	} else {
 		if id == -1 {
-			result.Option = ""
-			result.Result = "input id data error"
+			t.rst.Code = http.StatusNoContent
+			t.rst.Option = ""
+			t.rst.Result = "input id data error"
 
 		} else {
-			result.Option = "id=" + strconv.Itoa(id)
+			t.rst.Option = "id=" + strconv.Itoa(id)
 			keyword := map[string]interface{}{
 				"id": id,
 			}
 			data, err := t.sqlconfig.Read(table, keyword)
 			if err != nil {
-				result.Result = err.Error()
+				log.Println(err.Error())
+				t.rst.Result = err.Error()
 			} else {
-				result.Result = data
+				t.rst.Result = data
 			}
 		}
-		fmt.Fprintf(w, "%v", result.Output())
+		t.outputmessage(w)
+		// fmt.Fprintf(w, "%v", result.Output())
 
 	}
 
@@ -74,20 +80,22 @@ func (t *WebSqlRead) getSqlRead(id int, table table.Tablename, w http.ResponseWr
 
 //Getread All処理
 func (t *WebSqlRead) getSqlReadAll(table table.Tablename, w http.ResponseWriter, r *http.Request) {
-	result := message.Result{Name: "SQL Read", Date: time.Now()}
+	t.rst = message.Result{Name: "SQL Read", Date: time.Now()}
 	if table == "" {
+		t.rst.Code = http.StatusNoContent
 		t.outputmessage(w)
 		return
 	} else {
-		result.Option = "all"
+		t.rst.Option = "all"
 		data, err := t.sqlconfig.ReadAll(table)
 		if err != nil {
-			result.Result = err.Error()
+			log.Println(err.Error())
+			t.rst.Result = err.Error()
 		} else {
-			result.Result = data
+			t.rst.Result = data
 		}
 
-		fmt.Fprintf(w, "%v", result.Output())
+		fmt.Fprintf(w, "%v", t.rst.Output())
 
 	}
 
@@ -95,8 +103,10 @@ func (t *WebSqlRead) getSqlReadAll(table table.Tablename, w http.ResponseWriter,
 
 //基本処置
 func (t *WebSqlRead) sqlread_defult(w http.ResponseWriter, r *http.Request) {
-	result := message.Result{Name: "SQL Read", Date: time.Now(), Result: "OK"}
-	fmt.Fprintf(w, "%v", result.Output())
+	// result := message.Result{Name: "SQL Read", Date: time.Now(), Result: "OK"}
+	// fmt.Fprintf(w, "%v", result.Output())
+	t.rst.Result = nil
+	t.outputmessage(w)
 }
 
 //Method別処理
@@ -112,6 +122,7 @@ func websqlread(t *WebSqlRead, w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	if point_url == 0 {
+		t.rst.Code = http.StatusBadRequest
 		t.sqlread_defult(w, r)
 		return
 	} else {
@@ -132,7 +143,8 @@ func websqlread(t *WebSqlRead, w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	}
-
+	t.rst.Code = http.StatusOK
+	t.rst.Date = time.Now()
 	switch r.Method {
 	case "GET":
 		t.getSqlRead(id, table, w, r)
