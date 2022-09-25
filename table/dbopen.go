@@ -7,6 +7,21 @@ import (
 	"log"
 )
 
+type KeyWordOption string //検索オプション
+
+//検索オプションの値
+//
+//AND keyword=data and
+//OR keyword=data or
+//AND_Like keyword like %keyword% and
+//OR_LIKE keyword like %keyword% or
+const (
+	AND      KeyWordOption = "and"
+	OR       KeyWordOption = "or"
+	AND_Like KeyWordOption = "and_like"
+	OR_Like  KeyWordOption = "or_like"
+)
+
 type Config struct {
 	Db_name string  `json:"name"`     //sqlの種類
 	Db_host string  `json:"host"`     //sqlの接続IPやDNS
@@ -16,6 +31,10 @@ type Config struct {
 	Db_file string  `json:"filepass"` //SQLデータベース接続ファイルパス
 	db      *sql.DB //開いたSQLについて
 	Message string  //Helth checkに渡す用
+}
+
+type SerchID struct {
+	Id int `db:"id"`
 }
 
 //基本の設定
@@ -92,6 +111,34 @@ func (cfg *Config) ReadAll(t_name Tablename) ([]any, error) {
 	case "mysql":
 	case "sqlite3":
 		return cfg.sqlite3_ReadAll(t_name)
+	default:
+
+	}
+	return nil, errors.New("Don't select db type")
+}
+
+//テーブル内の特定カラムによる読み取り.
+//
+// v map[]interface{} = ["カラムのkeyword"]{検索の値}
+func (cfg *Config) Read(t_name Tablename, v map[string]interface{}) ([]any, error) {
+	switch cfg.Db_name {
+	case "mysql":
+	case "sqlite3":
+		return cfg.sqlite3_Read(t_name, v, AND)
+	default:
+
+	}
+	return nil, errors.New("Don't select db type")
+}
+
+//テーブル内のカラムの検索による読み取り
+//
+// v map[]interface{} = ["カラムのkeyword"]{検索の値}
+func (cfg *Config) Search(t_name Tablename, v map[string]interface{}) ([]any, error) {
+	switch cfg.Db_name {
+	case "mysql":
+	case "sqlite3":
+		return cfg.sqlite3_Read(t_name, v, OR_Like)
 	default:
 
 	}

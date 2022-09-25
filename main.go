@@ -81,6 +81,15 @@ func main() {
 	// }
 	// jsondata, _ := json.Marshal(data)
 	// fmt.Println(string(jsondata))
+	// // SQLの読み込みテスト2
+	// v := map[string]interface{}{}
+	// v["name"] = "bakatesu"
+	// data, err := sql.Search(table.Booknames, v)
+	// if err != nil {
+
+	// }
+	// jsondata, _ := json.Marshal(data)
+	// fmt.Println(string(jsondata))
 
 	defer sql.Close()
 	ctx := context.Background()

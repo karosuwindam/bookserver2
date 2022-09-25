@@ -165,8 +165,8 @@ func Read_Sqlite3(rows *sql.Rows, stdata ...any) ([]any, error) {
 	var loaddata []interface{}
 	rt := reflect.TypeOf(stdata[0])
 	for i := 0; i < rt.NumField(); i++ {
-		f := rt.Field(i)
-		switch f.Type.Kind() {
+		ft := rt.Field(i)
+		switch ft.Type.Kind() {
 		case reflect.Int:
 			i := int64(0)
 			loaddata = append(loaddata, &i)
