@@ -5,6 +5,7 @@ import (
 	"bookserver/table"
 	"database/sql"
 	"fmt"
+	"log"
 	"net/http"
 	"strconv"
 	"strings"
@@ -42,7 +43,7 @@ func (t *WebSqlRead) outputmessage(w http.ResponseWriter) {
 	fmt.Fprintf(w, "%v", t.msg.Output())
 }
 
-//Getread処理
+//Getread idによる読み取り
 func (t *WebSqlRead) getSqlRead(id int, table table.Tablename, w http.ResponseWriter, r *http.Request) {
 	result := message.Result{Name: "SQL Read", Date: time.Now()}
 	if table == "" {
@@ -55,9 +56,17 @@ func (t *WebSqlRead) getSqlRead(id int, table table.Tablename, w http.ResponseWr
 
 		} else {
 			result.Option = "id=" + strconv.Itoa(id)
+			keyword := map[string]interface{}{
+				"id": id,
+			}
+			data, err := t.sqlconfig.Read(table, keyword)
+			if err != nil {
+				result.Result = err.Error()
+			} else {
+				result.Result = data
+			}
 		}
 		fmt.Fprintf(w, "%v", result.Output())
-		// fmt.Fprintf(w, "%v", result.Result)
 
 	}
 
@@ -91,7 +100,7 @@ func (t *WebSqlRead) sqlread_defult(w http.ResponseWriter, r *http.Request) {
 }
 
 //Method別処理
-func Websqlread(t *WebSqlRead, w http.ResponseWriter, r *http.Request) {
+func websqlread(t *WebSqlRead, w http.ResponseWriter, r *http.Request) {
 	urldata := urlAnalysis(r.URL.Path)
 	point_url := 0
 	var table table.Tablename
@@ -133,6 +142,20 @@ func Websqlread(t *WebSqlRead, w http.ResponseWriter, r *http.Request) {
 		t.getSqlReadAll(table, w, r)
 	default:
 		t.sqlread_defult(w, r)
+	}
+
+}
+
+func Websqlread(it interface{}, w http.ResponseWriter, r *http.Request) {
+	switch it.(type) {
+	case *WebSqlRead:
+		t := it.(*WebSqlRead)
+		websqlread(t, w, r)
+
+	default:
+		log.Println("input point type err")
+		w.WriteHeader(400)
+		fmt.Fprintf(w, "input point type err")
 	}
 
 }

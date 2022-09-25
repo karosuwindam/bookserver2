@@ -2,7 +2,7 @@ package webserver
 
 import (
 	"bookserver/config"
-	"log"
+	"bookserver/message"
 	"net"
 	"net/http"
 )
@@ -35,7 +35,7 @@ func NewSetup(data *config.Config) (*SetupServer, error) {
 }
 
 func (t *SetupServer) NewServer() (*Server, error) {
-	log.Println("Setupserver", t.protocol, t.hostname+":"+t.port)
+	message.Println("Setupserver", t.protocol, t.hostname+":"+t.port)
 	l, err := net.Listen(t.protocol, t.hostname+":"+t.port)
 	if err != nil {
 		return nil, err
@@ -51,22 +51,3 @@ func (t *SetupServer) Add(route string, handler func(http.ResponseWriter, *http.
 }
 
 func (t *SetupServer) muxHandler() http.Handler { return t.mux }
-
-// func (s *Server) Run(ctx context.Context) error {
-// 	ctx, stop := signal.NotifyContext(ctx, os.Interrupt, syscall.SIGTERM, syscall.SIGINT)
-// 	defer stop()
-// 	eg, ctx := errgroup.WithContext(ctx)
-// 	eg.Go(func() error {
-// 		log.Println("Start Server")
-// 		if err := s.Srv.Serve((s.L)); err != nil {
-// 			return err
-// 		}
-// 		return nil
-// 	})
-// 	<-ctx.Done()
-// 	if err := s.Srv.Shutdown(context.Background()); err != nil {
-// 		log.Println(err)
-// 	}
-// 	log.Println("shutdown")
-// 	return eg.Wait()
-// }

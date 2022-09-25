@@ -2,6 +2,7 @@ package main
 
 import (
 	"bookserver/fileupload"
+	"bookserver/message"
 	"bookserver/table"
 	"bookserver/textread"
 	"bookserver/webserver"
@@ -36,7 +37,7 @@ func viewhtml(w http.ResponseWriter, r *http.Request) {
 		upath = "/" + upath
 		r.URL.Path = upath
 	}
-	log.Println(r.Method + ":" + r.URL.Path)
+	message.Println(r.Method + ":" + r.URL.Path)
 	if upath == "/" {
 		upath += "index.html"
 	}
@@ -68,20 +69,34 @@ func urlAnalysis(url string) []string {
 	return tmp
 }
 
+//v1 ルート処理
 func (t *Htmldata) v1(w http.ResponseWriter, r *http.Request) {
-	log.Println(r.Method + ":" + r.URL.Path)
+	v1 := map[string]func(interface{}, http.ResponseWriter, *http.Request){
+		"/v1/serch":  websqlread.WebsqlSerch,
+		"/v1/read":   websqlread.Websqlread,
+		"/v1/upload": fileupload.FIleupload,
+	}
 	urldata := urlAnalysis(r.URL.Path)
 	if len(urldata) > 1 {
 		switch urldata[1] {
 		case "":
 			w.WriteHeader(400)
 			fmt.Fprintf(w, "Err API request")
-		case "upload":
-			fileupload.FIleupload(t.uploadpass, w, r)
-		case "read":
-			websqlread.Websqlread(t.sqlread, w, r)
-		default:
-			fmt.Fprintf(w, "%s", r.URL.Path)
+		case "upload": //uploadの処理
+			if v1["/v1/"+urldata[1]] != nil {
+				v1["/v1/"+urldata[1]](t.uploadpass, w, r)
+			} else {
+				w.WriteHeader(200)
+				fmt.Fprintf(w, "%s", r.URL.Path)
+			}
+			// fileupload.FIleupload(t.uploadpass, w, r)
+		default: //sqlを操作する処理
+			if v1["/v1/"+urldata[1]] != nil {
+				v1["/v1/"+urldata[1]](t.sqlread, w, r)
+			} else {
+				w.WriteHeader(200)
+				fmt.Fprintf(w, "%s", r.URL.Path)
+			}
 		}
 
 	} else {
