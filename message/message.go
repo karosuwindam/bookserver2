@@ -20,6 +20,7 @@ type Message struct {
 
 type Result struct {
 	Name   string      `json:"name"`
+	Code   int         `json:"code"`
 	Option string      `json:option`
 	Date   time.Time   `json:"date"`
 	Result interface{} `json:"result"`
@@ -43,7 +44,7 @@ func (m *Message) InputMessage(msg string, flag logout) {
 
 //ResultのJSON変換
 func (r *Result) Output() string {
-	result := Result{Name: r.Name, Date: r.Date, Result: r.Result, Option: r.Option}
+	result := Result{Name: r.Name, Date: r.Date, Result: r.Result, Option: r.Option, Code: r.Code}
 	bytes, _ := json.Marshal(result)
 	return string(bytes)
 }

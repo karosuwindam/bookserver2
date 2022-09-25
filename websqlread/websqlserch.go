@@ -1,7 +1,6 @@
 package websqlread
 
 import (
-	"bookserver/message"
 	"bookserver/table"
 	"fmt"
 	"log"
@@ -11,25 +10,28 @@ import (
 
 //Getread idによる読み取り
 func (t *WebSqlRead) getSqlSerch(keyword string, table table.Tablename, w http.ResponseWriter, r *http.Request) {
-	result := message.Result{Name: "SQL Read", Date: time.Now()}
+	// result := message.Result{Name: "SQL Read", Date: time.Now()}
 	if table == "" {
+		t.rst.Code = http.StatusNoContent
 		t.outputmessage(w)
 		return
 	} else {
-		result.Option = "keyword=" + keyword
+		t.rst.Option = "keyword=" + keyword
 		skeyword := map[string]interface{}{
 			"keyword": keyword,
 		}
 		if keyword != "" {
 			data, err := t.sqlconfig.Search(table, skeyword)
 			if err != nil {
-				result.Result = err.Error()
+				log.Println(err.Error())
+				t.rst.Result = err.Error()
 			} else {
-				result.Result = data
+				t.rst.Result = data
 			}
 		}
 
-		fmt.Fprintf(w, "%v", result.Output())
+		// fmt.Fprintf(w, "%v", result.Output())
+		t.outputmessage(w)
 
 	}
 
@@ -47,6 +49,7 @@ func webSqlSerch(t *WebSqlRead, w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	if point_url == 0 || len(urldata[point_url:]) < 3 {
+		t.rst.Code = http.StatusNoContent
 		t.sqlread_defult(w, r)
 		return
 	} else {
@@ -57,6 +60,8 @@ func webSqlSerch(t *WebSqlRead, w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	}
+	t.rst.Code = http.StatusOK
+	t.rst.Date = time.Now()
 	t.getSqlSerch(urldata[point_url+2], table, w, r)
 
 }
