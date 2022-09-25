@@ -53,7 +53,8 @@ func Setup(data *config.Config) (*Config, error) {
 
 	//Defult
 	output.Db_name = "sqlite3"
-	output.Db_file = "development.sqlite3"
+	// output.Db_file = "development.sqlite3"
+	output.Db_file = "test3.db"
 
 	//テーブル名に対するテーブルの型
 	tablemap = map[Tablename]interface{}{
@@ -118,6 +119,20 @@ func (cfg *Config) ReadAll(t_name Tablename) ([]any, error) {
 
 	}
 	return nil, errors.New("Don't select db type")
+}
+
+//テーブル内のレコードを追加
+//
+//v map[string]interface{} = [設定名]{登録の値}
+func (cfg *Config) Add(t_name Tablename, v map[string]string) error {
+	switch cfg.Db_name {
+	case "mysql":
+	case "sqlite3":
+		return cfg.sqlite3_Add(t_name, v)
+	default:
+
+	}
+	return errors.New("Don't select db type")
 }
 
 //テーブル内の特定カラムによる読み取り.
