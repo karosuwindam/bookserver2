@@ -5,8 +5,6 @@ import (
 	"bookserver/table"
 	"bookserver/webserver"
 	"context"
-	"encoding/json"
-	"fmt"
 	"log"
 	"os"
 	"os/signal"
@@ -83,14 +81,15 @@ func main() {
 	// }
 	// jsondata, _ := json.Marshal(data)
 	// fmt.Println(string(jsondata))
-	// SQLの読み込みテスト2
-	id := 1
-	data, err := sql.Read(table.Copyfile, id)
-	if err != nil {
+	// // SQLの読み込みテスト2
+	// v := map[string]interface{}{}
+	// v["name"] = "bakatesu"
+	// data, err := sql.Search(table.Booknames, v)
+	// if err != nil {
 
-	}
-	jsondata, _ := json.Marshal(data)
-	fmt.Println(string(jsondata))
+	// }
+	// jsondata, _ := json.Marshal(data)
+	// fmt.Println(string(jsondata))
 
 	defer sql.Close()
 	ctx := context.Background()
