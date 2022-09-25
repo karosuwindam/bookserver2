@@ -1,7 +1,9 @@
 package fileupload
 
 import (
+	"bookserver/message"
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 	"strings"
@@ -12,7 +14,7 @@ import (
 type UploadPass struct {
 	Pdf  string `env:"PDF_FILEPASS" envDefault:"./upload/pdf"`
 	Zip  string `env:"ZIP_FILEPASS" envDefault:"./upload/zip"`
-	msg  Message
+	msg  message.Message
 	flag bool
 }
 
@@ -31,13 +33,14 @@ func Setup() (*UploadPass, error) {
 	if err := env.Parse(output); err != nil {
 		return nil, err
 	}
-	output.msg = Message{Name: "upload", Status: "OK", Code: http.StatusOK}
+	output.msg = message.Message{Name: "upload", Status: "OK", Code: http.StatusOK}
 	output.flag = true
 	return output, nil
 }
 
 //メッセージのバック
 func (t *UploadPass) outputmessage(w http.ResponseWriter) {
+	w.WriteHeader(t.msg.Code)
 	fmt.Fprintf(w, "%v", t.msg.Output())
 }
 
@@ -54,10 +57,11 @@ func (t *UploadPass) Message() string {
 //アップロード処理
 
 func (t *UploadPass) upload_file(w http.ResponseWriter, r *http.Request) {
-	t.msg = Message{Status: "OK", Code: http.StatusOK}
+	t.msg = message.Message{Status: "OK", Code: http.StatusOK}
 	file, fileHeader, e := r.FormFile("file")
 	if e != nil {
 		t.msg.Status = e.Error()
+		t.msg.Code = 202
 		t.outputmessage(w)
 		return
 	}
@@ -73,12 +77,12 @@ func (t *UploadPass) upload_file(w http.ResponseWriter, r *http.Request) {
 	}
 	fp, err := os.Create(savepass + filename)
 	if err != nil {
-		t.msg.InputMessage(err.Error()+"\t"+"not create file:"+savepass+filename, LOGOUTPUT_ON)
+		t.msg.InputMessage(err.Error()+"\t"+"not create file:"+savepass+filename, message.LOGOUTPUT_ON)
 		t.outputmessage(w)
 		return
 	}
 	defer fp.Close()
-	t.msg.InputMessage("Create File:"+savepass+filename, LOGOUTPUT_ON)
+	t.msg.InputMessage("Create File:"+savepass+filename, message.LOGOUTPUT_ON)
 
 	var data []byte = make([]byte, 1024)
 	var tmplength int64 = 0
@@ -94,8 +98,8 @@ func (t *UploadPass) upload_file(w http.ResponseWriter, r *http.Request) {
 		fp.WriteAt(data, tmplength)
 		tmplength += int64(n)
 	}
-	t.msg.InputMessage("Create File End", LOGOUTPUT_ON)
-	t.msg.InputMessage("OK", LOGOUTPUT_OFF)
+	t.msg.InputMessage("Create File End", message.LOGOUTPUT_ON)
+	t.msg.InputMessage("OK", message.LOGOUTPUT_OFF)
 	t.msg.Code = http.StatusOK
 
 }
@@ -115,8 +119,9 @@ func (t *UploadPass) upload_defult(w http.ResponseWriter, r *http.Request) {
 }
 
 //Method別処理
-func FIleupload(t *UploadPass, w http.ResponseWriter, r *http.Request) {
-	// urldata := urlAnalysis(r.URL.Path)
+func fIleupload(t *UploadPass, w http.ResponseWriter, r *http.Request) {
+	t.msg.Name = "upload"
+	t.msg.Code = 200
 	switch r.Method {
 	case "POST":
 		t.upload_file(w, r)
@@ -125,4 +130,18 @@ func FIleupload(t *UploadPass, w http.ResponseWriter, r *http.Request) {
 	default:
 		t.upload_defult(w, r)
 	}
+}
+
+func FIleupload(it interface{}, w http.ResponseWriter, r *http.Request) {
+	switch it.(type) {
+	case *UploadPass:
+		t := it.(*UploadPass)
+		fIleupload(t, w, r)
+
+	default:
+		log.Println("input point type err")
+		w.WriteHeader(400)
+		fmt.Fprintf(w, "input point type err")
+	}
+
 }

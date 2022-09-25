@@ -2,7 +2,6 @@ package message
 
 import (
 	"encoding/json"
-	"log"
 	"time"
 )
 
@@ -38,7 +37,7 @@ func (m *Message) Output() string {
 func (m *Message) InputMessage(msg string, flag logout) {
 	m.Status = msg
 	if flag == LOGOUTPUT_ON {
-		log.Println(m.Status)
+		Println(m.Status)
 	}
 }
 

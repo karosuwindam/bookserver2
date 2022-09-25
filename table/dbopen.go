@@ -2,9 +2,10 @@ package table
 
 import (
 	"bookserver/config"
+	"bookserver/message"
 	"database/sql"
 	"errors"
-	"log"
+	"reflect"
 )
 
 type KeyWordOption string //検索オプション
@@ -21,6 +22,8 @@ const (
 	AND_Like KeyWordOption = "and_like"
 	OR_Like  KeyWordOption = "or_like"
 )
+
+var tablemap map[Tablename]interface{}
 
 type Config struct {
 	Db_name string  `json:"name"`     //sqlの種類
@@ -52,6 +55,13 @@ func Setup(data *config.Config) (*Config, error) {
 	output.Db_name = "sqlite3"
 	output.Db_file = "development.sqlite3"
 
+	//テーブル名に対するテーブルの型
+	tablemap = map[Tablename]interface{}{
+		Booknames: booknames{},
+		Copyfile:  copyfile{},
+		Filelists: filelists{},
+	}
+
 	return output, nil
 }
 
@@ -66,16 +76,9 @@ func (cfg *Config) Open() error {
 	}
 	if err == nil {
 		msg := "SQL server open"
-		log.Println(msg)
+		message.Println(msg)
 		cfg.Message = msg
 
-		// data, _ := cfg.ReadAll(Copyfile)
-		// fmt.Println(data)
-		// if jsondata, err1 := json.Marshal(data); err1 == nil {
-		// 	fmt.Println(string(jsondata))
-
-		// }
-		// cfg.sqlite3_close()
 	}
 	return err
 }
@@ -83,7 +86,7 @@ func (cfg *Config) Open() error {
 //DBを閉じる
 func (cfg *Config) Close() {
 	msg := "SQL server close"
-	log.Println(msg)
+	message.Println(msg)
 	cfg.Message = msg
 }
 
@@ -138,9 +141,33 @@ func (cfg *Config) Search(t_name Tablename, v map[string]interface{}) ([]any, er
 	switch cfg.Db_name {
 	case "mysql":
 	case "sqlite3":
-		return cfg.sqlite3_Read(t_name, v, OR_Like)
+		keyword := createSerchKeyword(t_name, v)
+		return cfg.sqlite3_Read(t_name, keyword, OR_Like)
 	default:
 
 	}
 	return nil, errors.New("Don't select db type")
+}
+
+func createSerchKeyword(t_name Tablename, keyword map[string]interface{}) map[string]interface{} {
+	output := map[string]interface{}{}
+	ts := tablemap[t_name]
+	st := reflect.TypeOf(ts)
+	for keyname, data := range keyword {
+		if keyname == "keyword" {
+			for i := 0; i < st.NumField(); i++ {
+				f := st.Field(i)
+				switch f.Type.Kind() {
+				case reflect.String:
+					tagname := f.Tag.Get("db")
+					if tagname != "" {
+						output[tagname] = data
+					}
+				}
+			}
+		} else {
+			output[keyname] = data
+		}
+	}
+	return output
 }

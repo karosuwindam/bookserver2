@@ -1,10 +1,10 @@
 package table
 
 import (
+	"bookserver/message"
 	"database/sql"
 	"errors"
 	"fmt"
-	"log"
 	"reflect"
 	"time"
 )
@@ -24,14 +24,14 @@ const (
 )
 
 func tablecreate(sqltype string, sql *sql.DB) error {
-	createTableList := []createTableS{
-		{name: Booknames, st: booknames{}},
-		{name: Filelists, st: filelists{}},
-		{name: Copyfile, st: copyfile{}},
+	var createTableList []createTableS
+	for tablename, stype := range tablemap {
+		createTableList = append(createTableList, createTableS{name: tablename, st: stype})
+
 	}
 
 	for i := 0; i < len(createTableList); i++ {
-		err := createTableList[i].createCmd(sqltype)
+		err := createTableList[i].createTableCmd(sqltype)
 		if err != nil {
 			return err
 		}
@@ -50,9 +50,10 @@ func tablecreate(sqltype string, sql *sql.DB) error {
 		}
 		//create table
 		if !create_flag {
-			log.Println(string(list.name) + " createed.")
+			message.Println(string(list.name) + " createed.")
 			continue
 		}
+		message.Println("create database table for", string(list.name))
 		back, err := sql.Exec(list.cmd)
 		if err != nil {
 			return err
@@ -96,7 +97,7 @@ func sqlite3_table_list(db *sql.DB) ([]string, error) {
 
 }
 
-func (t *createTableS) createCmd(sqltype string) error {
+func (t *createTableS) createTableCmd(sqltype string) error {
 	output := "CREATE TABLE IF NOT EXISTS" + " "
 	if t.name == "" {
 		return errors.New("Don't input name data")
