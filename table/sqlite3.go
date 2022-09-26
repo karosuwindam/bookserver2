@@ -10,8 +10,9 @@ import (
 )
 
 const (
-	Basefolder = "./db/"
-	TimeLayout = "2006-01-02 15:04:05.999999999"
+	Basefolder  = "./db/"
+	TimeLayout  = "2006-01-02 15:04:05.999999999"
+	TimeLayout2 = "2006-01-02 15:04:05.999999 +0000 UTC"
 )
 
 func (cfg *Config) sqlite3_open() error {
@@ -155,7 +156,7 @@ func sqliteReadConvertV2(t_name Tablename, data ...interface{}) (map[string]stri
 	table := tablemap[t_name]
 	rt := reflect.TypeOf(table)
 	if len(data) != rt.NumField() {
-		return output, errors.New("Input data count err " + strconv.Itoa(len(v)))
+		return output, errors.New("Input data count err " + strconv.Itoa(len(data)))
 	}
 	for i := 0; i < rt.NumField(); i++ {
 		if data[i] != nil {
@@ -239,7 +240,7 @@ func convertCmdV2(t_name Tablename, keyword map[string]string, keytype KeyWordOp
 				output += f.Tag.Get("db") + " like "
 				switch f.Type.Kind() {
 				case reflect.Int:
-					output += "%" + keyword[f.Tag.Get("db")] + "%"
+					output += "'%" + keyword[f.Tag.Get("db")] + "%'"
 				case reflect.String:
 					output += "'%" + keyword[f.Tag.Get("db")] + "%'"
 				}
@@ -333,9 +334,12 @@ func timeconvert(timdata string) (time.Time, error) {
 	var output time.Time
 	var layout1 = "2006-01-02T15:04:05.999999Z"
 	var layout2 = TimeLayout
+	var layout3 = TimeLayout2
 	if output, err = time.Parse(layout1, timdata); err != nil {
 		if output, err = time.Parse(layout2, timdata); err != nil {
-			return output, err
+			if output, err = time.Parse(layout3, timdata); err != nil {
+				return output, err
+			}
 		}
 	}
 	return output, nil
