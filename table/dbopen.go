@@ -128,11 +128,41 @@ func (cfg *Config) Add(t_name Tablename, v map[string]string) error {
 	switch cfg.Db_name {
 	case "mysql":
 	case "sqlite3":
-		return cfg.sqlite3_Add(t_name, v)
+		return cfg.sqlite3Add(t_name, v)
 	default:
 
 	}
 	return errors.New("Don't select db type")
+}
+
+//テーブル内の特定IDのレコードの更新
+//
+//v map[string]interface{} = [設定名]{登録の値}
+func (cfg *Config) Update(t_name Tablename, v map[string]string) error {
+	switch cfg.Db_name {
+	case "mysql":
+	case "sqlite3":
+		return cfg.sqlUpdate(t_name, v)
+	default:
+
+	}
+	return errors.New("Don't select db type")
+
+}
+
+//テーブル内の特定IDのレコードを削除
+//
+//v map[string]interface{} = [設定名]{登録の値}
+func (cfg *Config) Delete(t_name Tablename, v map[string]string) error {
+	switch cfg.Db_name {
+	case "mysql":
+	case "sqlite3":
+		return cfg.sqlite3Delete(t_name, v)
+	default:
+
+	}
+	return errors.New("Don't select db type")
+
 }
 
 //テーブル内の特定カラムによる読み取り.
