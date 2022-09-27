@@ -19,25 +19,48 @@ func createchcmdTableTest(name string) string {
 	return cmd
 }
 
+const (
+	testtablename = "test"
+)
+
 func TestCreateTable(t *testing.T) {
 	sql := Setup("test.db")
-	err := sql.Open()
+	_ = sql.Open()
+	defer sql.Close()
+	str, err := createTableCmd(testtablename, TableTest{})
 	if err != nil {
 		t.Errorf("%v", err.Error())
 	}
-	err = sql.Close()
+	if str != createchcmdTableTest(testtablename) {
+		t.Errorf("output:%v\ncheck:%v", str, createchcmdTableTest(testtablename))
+	}
+	t.Logf("run sql cmd:%v", str)
+	err = sql.CreateTable(testtablename, TableTest{})
 	if err != nil {
 		t.Errorf("%v", err.Error())
+	}
+	t.Log("create test.db")
 
-	}
-	str, err1 := createTableCmd("test", TableTest{})
+	stu, err1 := sql.ReadTableList()
 	if err1 != nil {
-		t.Errorf("%v", err1.Error())
+		t.Errorf("%v", err.Error())
 	}
-	if str != createchcmdTableTest("test") {
-		t.Errorf("output:%v\ncheck:%v", str, createchcmdTableTest("test"))
+	tableckoff := []string{"sqlite_sequence"}
+	for _, name := range stu {
+		if testtablename == name {
+			t.Logf("created table = %v", name)
+		} else {
+			ck := true
+			for _, offname := range tableckoff {
+				if name == offname {
+					ck = false
+					break
+				}
+			}
+			if ck {
+				t.Errorf("%v", name)
+			}
+		}
 	}
-
-	t.Logf("%v", str)
 
 }
