@@ -1,4 +1,4 @@
-package websqlread
+package websql
 
 import (
 	"bookserver/table"
@@ -9,8 +9,8 @@ import (
 )
 
 //Getread idによる読み取り
-func (t *WebSqlRead) getSqlSerch(keyword string, table table.Tablename, w http.ResponseWriter, r *http.Request) {
-	// result := message.Result{Name: "SQL Read", Date: time.Now()}
+func (t *WebSql) getSqlSerch(keyword string, table table.Tablename, w http.ResponseWriter, r *http.Request) {
+	t.rst.Date = time.Now()
 	if table == "" {
 		t.rst.Code = http.StatusNoContent
 		t.outputmessage(w)
@@ -38,7 +38,7 @@ func (t *WebSqlRead) getSqlSerch(keyword string, table table.Tablename, w http.R
 }
 
 //Method別処理
-func webSqlSerch(t *WebSqlRead, w http.ResponseWriter, r *http.Request) {
+func webSqlSerch(t *WebSql, w http.ResponseWriter, r *http.Request) {
 	urldata := urlAnalysis(r.URL.Path)
 	point_url := 0
 	var table table.Tablename
@@ -68,8 +68,8 @@ func webSqlSerch(t *WebSqlRead, w http.ResponseWriter, r *http.Request) {
 
 func WebsqlSerch(it interface{}, w http.ResponseWriter, r *http.Request) {
 	switch it.(type) {
-	case *WebSqlRead:
-		t := it.(*WebSqlRead)
+	case *WebSql:
+		t := it.(*WebSql)
 		webSqlSerch(t, w, r)
 
 	default:

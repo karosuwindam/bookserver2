@@ -38,6 +38,35 @@ func convert_filelist(v ...any) (filelists, error) {
 	return output, err
 }
 
+func FilelistCovert(v []map[string]string) ([]filelists, error) {
+	var output []filelists
+	for _, vv := range v {
+		id, err := strconv.Atoi(vv["Id"])
+		if err != nil {
+			return output, nil
+		}
+		created_at, err := timeconvert(vv["Created_at"])
+		if err != nil {
+			return output, nil
+		}
+		updated_at, err := timeconvert(vv["Updated_at"])
+		if err != nil {
+			return output, nil
+		}
+		tmp := filelists{
+			Id:         id,
+			Name:       vv["Name"],
+			Zippass:    vv["Zippass"],
+			Pdfpass:    vv["Pdfpass"],
+			Tag:        vv["Tag"],
+			Created_at: created_at,
+			Updated_at: updated_at,
+		}
+		output = append(output, tmp)
+	}
+	return output, nil
+}
+
 func filelists_Read(sqltype string, rows *sql.Rows) (filelists, error) {
 	switch sqltype {
 	case "sqlite3":

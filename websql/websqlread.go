@@ -1,53 +1,18 @@
-package websqlread
+package websql
 
 import (
 	"bookserver/message"
 	"bookserver/table"
-	"database/sql"
 	"fmt"
 	"log"
 	"net/http"
 	"strconv"
-	"strings"
 	"time"
 )
 
-type WebSqlRead struct {
-	sql       *sql.DB
-	sqlconfig *table.Config
-	rst       message.Result
-	table     []table.Tablename
-}
-
-//URL解析
-func urlAnalysis(url string) []string {
-	tmp := []string{}
-	for _, str := range strings.Split(url[1:], "/") {
-		tmp = append(tmp, str)
-	}
-	return tmp
-}
-
-//セットアップ
-func Setup(sql *table.Config) (*WebSqlRead, error) {
-	var err error = nil
-	output := &WebSqlRead{}
-	output.sqlconfig = sql
-	output.table = []table.Tablename{table.Booknames, table.Copyfile, table.Filelists}
-	output.rst = message.Result{Name: "SQL Read", Code: http.StatusOK}
-	return output, err
-}
-
-//メッセージのバック
-func (t *WebSqlRead) outputmessage(w http.ResponseWriter) {
-	w.WriteHeader(t.rst.Code)
-	fmt.Fprintf(w, "%v", t.rst.Output())
-}
-
 //Getread idによる読み取り
-func (t *WebSqlRead) getSqlRead(id int, table table.Tablename, w http.ResponseWriter, r *http.Request) {
+func (t *WebSql) getSqlRead(id int, table table.Tablename, w http.ResponseWriter, r *http.Request) {
 	t.rst.Result = nil
-	// result := message.Result{Name: "SQL Read", Date: time.Now()}
 	if table == "" {
 		t.rst.Code = http.StatusNoContent
 		t.outputmessage(w)
@@ -79,8 +44,8 @@ func (t *WebSqlRead) getSqlRead(id int, table table.Tablename, w http.ResponseWr
 }
 
 //Getread All処理
-func (t *WebSqlRead) getSqlReadAll(table table.Tablename, w http.ResponseWriter, r *http.Request) {
-	t.rst = message.Result{Name: "SQL Read", Date: time.Now()}
+func (t *WebSql) getSqlReadAll(table table.Tablename, w http.ResponseWriter, r *http.Request) {
+	t.rst = message.Result{Name: "SQL Read", Date: time.Now(), Code: t.rst.Code, Option: t.rst.Option, Result: t.rst.Result}
 	if table == "" {
 		t.rst.Code = http.StatusNoContent
 		t.outputmessage(w)
@@ -102,15 +67,14 @@ func (t *WebSqlRead) getSqlReadAll(table table.Tablename, w http.ResponseWriter,
 }
 
 //基本処置
-func (t *WebSqlRead) sqlread_defult(w http.ResponseWriter, r *http.Request) {
-	// result := message.Result{Name: "SQL Read", Date: time.Now(), Result: "OK"}
-	// fmt.Fprintf(w, "%v", result.Output())
+func (t *WebSql) sqlread_defult(w http.ResponseWriter, r *http.Request) {
+	t.rst.Date = time.Now()
 	t.rst.Result = nil
 	t.outputmessage(w)
 }
 
 //Method別処理
-func websqlread(t *WebSqlRead, w http.ResponseWriter, r *http.Request) {
+func websqlread(t *WebSql, w http.ResponseWriter, r *http.Request) {
 	urldata := urlAnalysis(r.URL.Path)
 	point_url := 0
 	var table table.Tablename
@@ -145,6 +109,8 @@ func websqlread(t *WebSqlRead, w http.ResponseWriter, r *http.Request) {
 	}
 	t.rst.Code = http.StatusOK
 	t.rst.Date = time.Now()
+	t.rst.Name = "SQL Read"
+	t.rst.Option = ""
 	switch r.Method {
 	case "GET":
 		t.getSqlRead(id, table, w, r)
@@ -160,8 +126,8 @@ func websqlread(t *WebSqlRead, w http.ResponseWriter, r *http.Request) {
 
 func Websqlread(it interface{}, w http.ResponseWriter, r *http.Request) {
 	switch it.(type) {
-	case *WebSqlRead:
-		t := it.(*WebSqlRead)
+	case *WebSql:
+		t := it.(*WebSql)
 		websqlread(t, w, r)
 
 	default:

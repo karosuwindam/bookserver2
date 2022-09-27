@@ -78,3 +78,39 @@ func copyfile_Read_mysql(rows *sql.Rows) (copyfile, error) {
 	tmp := copyfile{}
 	return tmp, nil
 }
+
+func CopyfileCovert(v []map[string]string) ([]copyfile, error) {
+	var output []copyfile
+	for _, vv := range v {
+		id, err := strconv.Atoi(vv["Id"])
+		if err != nil {
+			return output, nil
+		}
+		created_at, err := timeconvert(vv["Created_at"])
+		if err != nil {
+			return output, nil
+		}
+		updated_at, err := timeconvert(vv["Updated_at"])
+		if err != nil {
+			return output, nil
+		}
+		filesize, err := strconv.Atoi(vv["Filesize"])
+		if err != nil {
+			return output, nil
+		}
+		copyflag, err := strconv.Atoi(vv["Copyflag"])
+		if err != nil {
+			return output, nil
+		}
+		tmp := copyfile{
+			Id:         id,
+			Zippass:    vv["Zippass"],
+			Filesize:   filesize,
+			Copyflag:   copyflag,
+			Created_at: created_at,
+			Updated_at: updated_at,
+		}
+		output = append(output, tmp)
+	}
+	return output, nil
+}

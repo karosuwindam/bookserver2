@@ -74,6 +74,7 @@ func main() {
 		os.Exit(1)
 		return
 	}
+	defer sql.Close()
 
 	// SQLの読み込みテスト
 	// data, err := sql.ReadAll(table.Copyfile)
@@ -91,8 +92,29 @@ func main() {
 	// }
 	// jsondata, _ := json.Marshal(data)
 	// fmt.Println(string(jsondata))
+	// // SQLの読み込みテスト3
+	// v := map[string]string{
+	// 	"id": "1",
+	// }
+	// data, err := sql.SearchV2(table.Filelists, v)
+	// if err != nil {
 
-	defer sql.Close()
+	// }
+	// t, _ := table.FilelistCovert(data)
+	// jsondata, _ := json.Marshal(t)
+	// fmt.Println(string(jsondata))
+
+	// //SQLの追加テスト
+	// v := map[string]string{
+	// 	"id":    "",
+	// 	"name":  "test",
+	// 	"title": "test",
+	// }
+	// err1 := sql.Add(table.Booknames, v)
+	// if err1 != nil {
+	// 	log.Println(err1.Error())
+	// }
+
 	ctx := context.Background()
 	if err := Run(s, ctx); err != nil {
 		log.Println(err)
