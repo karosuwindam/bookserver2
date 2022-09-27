@@ -85,6 +85,7 @@ func sqlite3_table_list(db *sql.DB) ([]string, error) {
 	if err != nil {
 		return []string{}, nil
 	}
+	defer rows.Close()
 	for rows.Next() {
 		str := ""
 		err1 := rows.Scan(&str)

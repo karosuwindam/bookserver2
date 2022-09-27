@@ -13,6 +13,11 @@
 |/v1/read/[テーブル]/|LIST|データベース内のテーブルデータすべて読み取り||
 |/v1/read/[テーブル]/[id]/GET|データベース内のIDを指定して読み取る||
 |/v1/serch/[テーブル]/[keyword]|GET|検索ワードを指定して読み取る||
+|/v1/add/[テーブル]/|POST|データベースにデータを追加||
+
+
+# データベースにデータを追加について
+テーブルのデータベースの型に沿ってJSONデータを送信する
 
 # 設定可能な環境変数
 
@@ -27,3 +32,7 @@
 |DB_USER|SQLの接続ユーザ||
 |DB_PASS|SQLの接続ユーザパスワード||
 |DB_FILE|SQLite3の接続ファイルパス|test.db|
+
+## CURLによるテスト
+
+curl localhost:8080/v1/add/booknames/  -X POST -d "name=bagaet" --data-urlencode "title=はなび" --data-urlencode "ext=げた"
