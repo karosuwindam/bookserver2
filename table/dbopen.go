@@ -54,6 +54,7 @@ func Setup(data *config.Config) (*Config, error) {
 	//Defult
 	output.Db_name = "sqlite3"
 	output.Db_file = "development.sqlite3"
+	// output.Db_file = "test3.db"
 
 	//テーブル名に対するテーブルの型
 	tablemap = map[Tablename]interface{}{
@@ -120,6 +121,50 @@ func (cfg *Config) ReadAll(t_name Tablename) ([]any, error) {
 	return nil, errors.New("Don't select db type")
 }
 
+//テーブル内のレコードを追加
+//
+//v map[string]interface{} = [設定名]{登録の値}
+func (cfg *Config) Add(t_name Tablename, v map[string]string) error {
+	switch cfg.Db_name {
+	case "mysql":
+	case "sqlite3":
+		return cfg.sqlite3Add(t_name, v)
+	default:
+
+	}
+	return errors.New("Don't select db type")
+}
+
+//テーブル内の特定IDのレコードの更新
+//
+//v map[string]interface{} = [設定名]{登録の値}
+func (cfg *Config) Update(t_name Tablename, v map[string]string) error {
+	switch cfg.Db_name {
+	case "mysql":
+	case "sqlite3":
+		return cfg.sqlUpdate(t_name, v)
+	default:
+
+	}
+	return errors.New("Don't select db type")
+
+}
+
+//テーブル内の特定IDのレコードを削除
+//
+//v map[string]interface{} = [設定名]{登録の値}
+func (cfg *Config) Delete(t_name Tablename, v map[string]string) error {
+	switch cfg.Db_name {
+	case "mysql":
+	case "sqlite3":
+		return cfg.sqlite3Delete(t_name, v)
+	default:
+
+	}
+	return errors.New("Don't select db type")
+
+}
+
 //テーブル内の特定カラムによる読み取り.
 //
 // v map[]interface{} = ["カラムのkeyword"]{検索の値}
@@ -128,6 +173,17 @@ func (cfg *Config) Read(t_name Tablename, v map[string]interface{}) ([]any, erro
 	case "mysql":
 	case "sqlite3":
 		return cfg.sqlite3_Read(t_name, v, AND)
+	default:
+
+	}
+	return nil, errors.New("Don't select db type")
+}
+
+func (cfg *Config) Readv2(t_name Tablename, v map[string]string) ([]map[string]string, error) {
+	switch cfg.Db_name {
+	case "mysql":
+	case "sqlite3":
+		return cfg.sqlite3ReadV2(t_name, v, AND)
 	default:
 
 	}
@@ -148,9 +204,42 @@ func (cfg *Config) Search(t_name Tablename, v map[string]interface{}) ([]any, er
 	}
 	return nil, errors.New("Don't select db type")
 }
+func (cfg *Config) SearchV2(t_name Tablename, v map[string]string) ([]map[string]string, error) {
+	switch cfg.Db_name {
+	case "mysql":
+	case "sqlite3":
+		keyword := createSerchKeywordV2(t_name, v)
+		return cfg.sqlite3ReadV2(t_name, keyword, OR_Like)
+	default:
+
+	}
+	return nil, errors.New("Don't select db type")
+}
 
 func createSerchKeyword(t_name Tablename, keyword map[string]interface{}) map[string]interface{} {
 	output := map[string]interface{}{}
+	ts := tablemap[t_name]
+	st := reflect.TypeOf(ts)
+	for keyname, data := range keyword {
+		if keyname == "keyword" {
+			for i := 0; i < st.NumField(); i++ {
+				f := st.Field(i)
+				switch f.Type.Kind() {
+				case reflect.String:
+					tagname := f.Tag.Get("db")
+					if tagname != "" {
+						output[tagname] = data
+					}
+				}
+			}
+		} else {
+			output[keyname] = data
+		}
+	}
+	return output
+}
+func createSerchKeywordV2(t_name Tablename, keyword map[string]string) map[string]string {
+	output := map[string]string{}
 	ts := tablemap[t_name]
 	st := reflect.TypeOf(ts)
 	for keyname, data := range keyword {
