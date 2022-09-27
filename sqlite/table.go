@@ -63,18 +63,9 @@ func createTableCmd(tname string, stu interface{}) (string, error) {
 		case reflect.String:
 			tmp = f.Tag.Get("db")
 			cmd += "\"" + tmp + "\" varchar"
-			// case reflect.Struct:
-			// 	tmp = f.Tag.Get("db")
-			// 	cmd += "\"" + tmp + "\" datetime"
 		}
 		if tmp == "id" {
 			cmd += " PRIMARY KEY AUTOINCREMENT NOT NULL"
-			count++
-			// } else if tmp == "created_at" {
-			// 	cmd += " NOT NULL"
-			// 	count++
-			// } else if tmp == "updated_at" {
-			// 	cmd += " NOT NULL"
 			count++
 		} else if tmp == "" {
 			return "", errors.New("Don't tag setup for " + f.Name)
