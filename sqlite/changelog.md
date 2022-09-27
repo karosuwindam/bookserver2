@@ -5,6 +5,7 @@
   * SQLiteを開く機能
   * SQLiteを閉じる機能
   * 変数の型からSQLiteのTableを作成する機能
+  * SQLiteのTableを削除する機能
 
 # To Do
 * SQLiteのTableからデータを読み取る機能
@@ -12,4 +13,3 @@
 * SQLiteのTableからデータを追加する機能
 * SQLiteのTableからid指定によるデータを更新機能
 * SQLiteのTableからid指定によるデータを削除機能
-* SQLiteのTableを削除する機能

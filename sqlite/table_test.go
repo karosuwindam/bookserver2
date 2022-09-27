@@ -41,9 +41,15 @@ func TestCreateTable(t *testing.T) {
 	}
 	t.Log("create test.db")
 
+	cmd, err1 := sql.ReadCreateTableCmd(testtablename)
+	if err1 != nil {
+		t.Errorf("%v", err1.Error())
+	}
+	t.Logf("cmd:%v", cmd)
+
 	stu, err1 := sql.ReadTableList()
 	if err1 != nil {
-		t.Errorf("%v", err.Error())
+		t.Errorf("%v", err1.Error())
 	}
 	tableckoff := []string{"sqlite_sequence"}
 	for _, name := range stu {
@@ -62,5 +68,15 @@ func TestCreateTable(t *testing.T) {
 			}
 		}
 	}
+	err1 = sql.DropTable(testtablename)
+	if err != nil {
+		t.Errorf("%v", err1.Error())
+	}
+	ckdatabase, _ := sql.ReadCreateTableCmd(testtablename)
+	if ckdatabase != "" {
+		t.Errorf("Don't delete table cmd:%v", ckdatabase)
+	}
+
+	t.Logf("%v table deleted", testtablename)
 
 }
