@@ -13,7 +13,7 @@ import (
 //データ追加処理
 func (t *WebSql) websqladd(table table.Tablename, w http.ResponseWriter, r *http.Request) {
 
-	t.rst = message.Result{Name: "SQL Add", Date: time.Now(), Code: t.rst.Code, Option: t.rst.Option, Result: t.rst.Result}
+	t.rst = message.Result{Name: "SQL Add", Date: time.Now(), Code: t.rst.Code, Result: t.rst.Result}
 	if table == "" {
 		t.rst.Code = http.StatusNoContent
 		t.outputmessage(w)
@@ -25,6 +25,16 @@ func (t *WebSql) websqladd(table table.Tablename, w http.ResponseWriter, r *http
 			fmt.Fprintf(w, "%v", t.rst.Output())
 
 			return
+		} else {
+			count := 0
+			for key, value := range v {
+				if count != 0 {
+					t.rst.Option += " "
+				}
+				t.rst.Option += key + "=" + value
+				count++
+
+			}
 		}
 		err := t.sqlconfig.Add(table, v)
 		if err != nil {

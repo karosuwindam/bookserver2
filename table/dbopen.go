@@ -53,7 +53,7 @@ func Setup(data *config.Config) (*Config, error) {
 
 	//Defult
 	output.Db_name = "sqlite3"
-	output.Db_file = "development.sqlite3"
+	// output.Db_file = "development.sqlite3"
 	// output.Db_file = "test3.db"
 
 	//テーブル名に対するテーブルの型

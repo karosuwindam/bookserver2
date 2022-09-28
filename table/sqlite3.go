@@ -34,12 +34,14 @@ func (cfg *Config) sqlite3_table_create() error {
 func (cfg *Config) sqlite3Add(t_name Tablename, v map[string]string) error {
 	var err error
 	var cmd string
+	v["id"] = cfg.sqlite3IdMax(t_name)
 	switch tablemap[t_name].(type) {
 	case booknames:
-		v["id"] = cfg.sqlite3IdMax(t_name)
 		cmd, err = sqlite3RecodeAdd(t_name, booknames{}, v)
 	case copyfile:
+		cmd, err = sqlite3RecodeAdd(t_name, copyfile{}, v)
 	case filelists:
+		cmd, err = sqlite3RecodeAdd(t_name, filelists{}, v)
 	default:
 		err = errors.New("not found db table")
 
