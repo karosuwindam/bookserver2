@@ -13,6 +13,11 @@ const (
 	ifnot_on  ifnot = true
 )
 
+const (
+	TimeLayout  = "2006-01-02 15:04:05.999999999"
+	TimeLayout2 = "2006-01-02 15:04:05.999999 +0000 UTC"
+)
+
 func (t *sqliteConfig) CreateTable(tname string, stu interface{}) error {
 	var cmd string
 	backcmd, err := t.ReadCreateTableCmd(tname)
