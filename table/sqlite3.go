@@ -113,7 +113,44 @@ func (cfg *Config) sqlUpdate(t_name Tablename, v map[string]string) error {
 
 //削除処理
 func (cfg *Config) sqlite3Delete(t_name Tablename, v map[string]string) error {
-	return nil
+	if len(v) == 0 {
+		return errors.New("Don't input data")
+	}
+	cmd := "DELETE FROM " + string(t_name)
+	vcmd, err := createVaulePrameter(tablemap[t_name], v)
+	if err != nil {
+		return err
+	}
+	if vcmd == "" {
+		return errors.New("input vaule no data for table")
+	}
+	cmd += " " + "WHERE" + " " + vcmd
+	_, err = cfg.db.Exec(cmd)
+
+	return err
+}
+
+func createVaulePrameter(table interface{}, v map[string]string) (string, error) {
+	vcmd := ""
+	rt := reflect.TypeOf(table)
+	for i := 0; i < rt.NumField(); i++ {
+		ft := rt.Field(i)
+		if key := ft.Tag.Get("db"); key != "" {
+			value := v[key]
+			if value != "" {
+				if vcmd != "" {
+					vcmd += " " + "AND" + " "
+				}
+				switch ft.Type.Kind() {
+				case reflect.Int:
+					vcmd += key + "=" + value
+				case reflect.String:
+					vcmd += key + "=" + "'" + value + "'"
+				}
+			}
+		}
+	}
+	return vcmd, nil
 }
 
 //読み取り処理v2

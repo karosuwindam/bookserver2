@@ -115,6 +115,18 @@ func main() {
 	// 	log.Println(err1.Error())
 	// }
 
+	// //SQLの削除テスト
+	// v := map[string]string{
+	// 	"name":     "bagaet",
+	// 	"name2":    "bagaet",
+	// 	"filesize": "131",
+	// 	"copyflag": "1",
+	// }
+	// err1 := sql.Delete(table.Copyfile, v)
+	// if err1 != nil {
+	// 	log.Panicln(err1.Error())
+	// }
+
 	ctx := context.Background()
 	if err := Run(s, ctx); err != nil {
 		log.Println(err)
