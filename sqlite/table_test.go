@@ -1,6 +1,7 @@
 package sqlite
 
 import (
+	"os"
 	"testing"
 )
 
@@ -19,15 +20,14 @@ func createchcmdTableTest(name string) string {
 	return cmd
 }
 
-const (
-	testtablename = "test"
-)
-
 func TestCreateTable(t *testing.T) {
+	testtablename := "test"
+	testdbname := "test.db"
+
 	sql := Setup("test.db")
 	_ = sql.Open()
 	defer sql.Close()
-	str, err := createTableCmd(testtablename, TableTest{})
+	str, err := createTableCmd(testtablename, TableTest{}, ifnot_on)
 	if err != nil {
 		t.Errorf("%v", err.Error())
 	}
@@ -78,5 +78,6 @@ func TestCreateTable(t *testing.T) {
 	}
 
 	t.Logf("%v table deleted", testtablename)
+	os.Remove(testdbname)
 
 }

@@ -1,9 +1,14 @@
 package sqlite
 
-import "testing"
+import (
+	"os"
+	"testing"
+)
 
 func TestOpen(t *testing.T) {
-	sql := Setup("test.db")
+	testdbname := "test.db"
+
+	sql := Setup(testdbname)
 	err := sql.Open()
 	if err != nil {
 		t.Errorf("%v", err.Error())
@@ -13,4 +18,5 @@ func TestOpen(t *testing.T) {
 		t.Errorf("%v", err.Error())
 
 	}
+	os.Remove(testdbname)
 }
