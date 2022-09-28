@@ -32,7 +32,7 @@ func (t *sqliteConfig) Read(tname string, stu interface{}, v map[string]string, 
 
 func createReadCmd(tname string, stu interface{}, keyword map[string]string, keytype KeyWordOption) (string, error) {
 	rt := reflect.TypeOf(stu)
-	if rt.Kind() == reflect.Pointer {
+	if rt.Kind() == reflect.UnsafePointer {
 		return "", errors.New("This input stu data is pointer")
 	}
 	cmd := "SELECT * FROM" + " " + tname

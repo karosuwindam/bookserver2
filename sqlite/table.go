@@ -3,14 +3,48 @@ package sqlite
 import (
 	"errors"
 	"reflect"
+	"strings"
+)
+
+type ifnot bool
+
+const (
+	ifnot_off ifnot = false
+	ifnot_on  ifnot = true
 )
 
 func (t *sqliteConfig) CreateTable(tname string, stu interface{}) error {
-	cmd, err := createTableCmd(tname, stu)
+	var cmd string
+	backcmd, err := t.ReadCreateTableCmd(tname)
 	if err != nil {
 		return err
 	}
-	_, err = t.db.Exec(cmd)
+	if backcmd != "" { //tableが作成済み
+		cmd, err = createTableCmd(tname, stu, ifnot_off)
+		if err != nil {
+			return err
+		}
+		if cmd == backcmd { //登録コマンドと実行コマンドが同じ
+
+		} else { //登録コマンドと実行コマンドが異なる
+			a := strings.Split(cmd, ",")
+			b := strings.Split(backcmd, ",")
+			if len(a) > len(b) { //カラム増やす変更を増やす
+
+			} else {
+				return errors.New("Don't change table for delete column")
+			}
+
+		}
+
+	} else { //tableが作成していない
+		cmd, err = createTableCmd(tname, stu, ifnot_on)
+		if err != nil {
+			return err
+		}
+		_, err = t.db.Exec(cmd)
+
+	}
 
 	return err
 }
@@ -70,8 +104,11 @@ func (t *sqliteConfig) DropTable(tname string) error {
 
 }
 
-func createTableCmd(tname string, stu interface{}) (string, error) {
-	cmd := "CREATE TABLE IF NOT EXISTS" + " "
+func createTableCmd(tname string, stu interface{}, flag ifnot) (string, error) {
+	cmd := "CREATE TABLE" + " "
+	if flag == ifnot_on {
+		cmd += "IF NOT EXISTS" + " "
+	}
 	if tname == "" {
 		return "", errors.New("Don't input name data")
 	}
@@ -111,6 +148,13 @@ func createTableCmd(tname string, stu interface{}) (string, error) {
 	cmd += ")"
 	return cmd, nil
 
+}
+
+func altertableCmd(tname, cmd_a, cmd_b string) []string {
+	var output []string
+	//ALTER TABLE tbl_name ADD COLUMN new_col VARCHAR(10) AFTER col1;
+
+	return output
 }
 
 func dropTableCmd(tname string) (string, error) {

@@ -8,6 +8,7 @@
   * SQLiteのTableを削除する機能
 
 # To Do
+* SQLiteのTableで追加があるならば変更する機能
 * SQLiteのTableからデータを読み取る機能
 * SQLiteのTableから検索する機能(オプションあり)
 * SQLiteのTableからデータを追加する機能
