@@ -20,7 +20,7 @@ const (
 	OR_Like  KeyWordOption = "or_like"
 )
 
-func (t *sqliteConfig) Read(tname string, stu interface{}, v map[string]string, keytype KeyWordOption) error {
+func (t *sqliteConfig) Read(tname string, stu interface{}, slice interface{}, v map[string]string, keytype KeyWordOption) error {
 	cmd, err := createReadCmd(tname, stu, v, keytype)
 	if err != nil {
 		return err
