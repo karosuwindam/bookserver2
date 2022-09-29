@@ -21,7 +21,7 @@ func (cfg *sqliteConfig) Add(tname string, tabledatap interface{}) error {
 
 // 挿入するコマンドを作成
 func createaddCmdById(tname string, tabledata interface{}) (string, error) {
-	cmd := "INSERT INTO '" + tname + "' "
+	cmd := "INSERT INTO " + tname + " "
 	cmd_colume := ""
 	cmd_vaule := ""
 	now := time.Now()
@@ -51,9 +51,9 @@ func createaddCmdById(tname string, tabledata interface{}) (string, error) {
 		return "", errors.New("Don't created command")
 	} else {
 		cmd_colume += "," + "created_at"
-		cmd_vaule += "," + now.Format(TimeLayout)
+		cmd_vaule += "," + "'" + now.Format(TimeLayout) + "'"
 		cmd_colume += "," + "updated_at"
-		cmd_vaule += "," + now.Format(TimeLayout)
+		cmd_vaule += "," + "'" + now.Format(TimeLayout) + "'"
 		cmd += " (" + cmd_colume + ") " + "VALUES" + " (" + cmd_vaule + ")"
 	}
 

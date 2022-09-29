@@ -28,6 +28,8 @@ func TestCreateTable(t *testing.T) {
 	sql := Setup(testdbname)
 	_ = sql.Open()
 	defer sql.Close()
+
+	t.Log("----------- table create cmd ---------------")
 	str, err := createTableCmd(testtablename, TableTest{}, ifnot_on)
 	if err != nil {
 		t.Errorf("%v", err.Error())
@@ -36,18 +38,21 @@ func TestCreateTable(t *testing.T) {
 		t.Errorf("output:%v\ncheck:%v", str, createchcmdTableTest(testtablename))
 	}
 	t.Logf("run sql cmd:%v", str)
+	t.Log("----------- table create ---------------")
 	err = sql.CreateTable(testtablename, TableTest{})
 	if err != nil {
 		t.Errorf("%v", err.Error())
 	}
 	t.Log("create test.db")
 
+	t.Log("----------- table read ---------------")
 	cmd, err1 := sql.ReadCreateTableCmd(testtablename)
 	if err1 != nil {
 		t.Errorf("%v", err1.Error())
 	}
 	t.Logf("cmd:%v", cmd)
 
+	t.Log("----------- table list read ---------------")
 	stu, err1 := sql.ReadTableList()
 	if err1 != nil {
 		t.Errorf("%v", err1.Error())
@@ -69,6 +74,7 @@ func TestCreateTable(t *testing.T) {
 			}
 		}
 	}
+	t.Log("----------- table drop ---------------")
 	err1 = sql.DropTable(testtablename)
 	if err != nil {
 		t.Errorf("%v", err1.Error())

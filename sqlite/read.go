@@ -25,7 +25,14 @@ func (t *sqliteConfig) Read(tname string, stu interface{}, v map[string]string, 
 	if err != nil {
 		return err
 	}
-	_, err = t.db.Exec(cmd)
+	rows, err := t.db.Query(cmd)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+	for rows.Next() {
+
+	}
 
 	return err
 }
