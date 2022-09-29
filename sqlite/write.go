@@ -7,8 +7,10 @@ import (
 	"time"
 )
 
-func (cfg *sqliteConfig) Add(tname string, tabledata interface{}) error {
-	cangeDbId(cfg.sqlite3IdMax(tname), &tabledata)
+func (cfg *sqliteConfig) Add(tname string, tabledatap interface{}) error {
+	cangeDbId(cfg.sqlite3IdMax(tname), tabledatap)
+	tabledata := reflect.ValueOf(tabledatap).Elem().Interface()
+
 	cmd, err := createaddCmdById(tname, tabledata)
 	if err != nil {
 		return err
@@ -19,7 +21,7 @@ func (cfg *sqliteConfig) Add(tname string, tabledata interface{}) error {
 
 // 挿入するコマンドを作成
 func createaddCmdById(tname string, tabledata interface{}) (string, error) {
-	cmd := "INSERT INTO " + tname + " "
+	cmd := "INSERT INTO '" + tname + "' "
 	cmd_colume := ""
 	cmd_vaule := ""
 	now := time.Now()
@@ -64,7 +66,8 @@ func cangeDbId(id int, tabledatap interface{}) {
 		return
 	}
 	sv := reflect.ValueOf(tabledatap)
-	st := reflect.TypeOf(sv.Elem().Interface())
+	svi := sv.Elem().Interface()
+	st := reflect.TypeOf(svi)
 	for i := 0; i < st.NumField(); i++ {
 		ft := st.Field(i)
 		if key := ft.Tag.Get("db"); key != "" {

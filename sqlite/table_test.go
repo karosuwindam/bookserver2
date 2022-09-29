@@ -5,12 +5,6 @@ import (
 	"testing"
 )
 
-type TableTest struct {
-	id  int    `db:"id"`
-	str string `db:"str"`
-	i   int    `db:"i"`
-}
-
 func createchcmdTableTest(name string) string {
 	cmd := "CREATE TABLE IF NOT EXISTS \"" + name + "\" "
 	cmd += "(" + "\"id\" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL"
@@ -21,10 +15,17 @@ func createchcmdTableTest(name string) string {
 }
 
 func TestCreateTable(t *testing.T) {
+
+	type TableTest struct {
+		id  int    `db:"id"`
+		str string `db:"str"`
+		i   int    `db:"i"`
+	}
+
 	testtablename := "test"
 	testdbname := "test.db"
 
-	sql := Setup("test.db")
+	sql := Setup(testdbname)
 	_ = sql.Open()
 	defer sql.Close()
 	str, err := createTableCmd(testtablename, TableTest{}, ifnot_on)
