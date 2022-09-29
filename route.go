@@ -6,7 +6,7 @@ import (
 	"bookserver/table"
 	"bookserver/textread"
 	"bookserver/webserver"
-	"bookserver/websqlread"
+	"bookserver/websql"
 	"fmt"
 	"log"
 	"net/http"
@@ -20,7 +20,7 @@ const (
 type Htmldata struct {
 	uploadpass *fileupload.UploadPass
 	sql        *table.Config
-	sqlread    *websqlread.WebSqlRead
+	sqlread    *websql.WebSql
 }
 
 type HealthMessage struct {
@@ -72,9 +72,11 @@ func urlAnalysis(url string) []string {
 //v1 ルート処理
 func (t *Htmldata) v1(w http.ResponseWriter, r *http.Request) {
 	v1 := map[string]func(interface{}, http.ResponseWriter, *http.Request){
-		"/v1/serch":  websqlread.WebsqlSerch,
-		"/v1/read":   websqlread.Websqlread,
+		"/v1/serch":  websql.WebsqlSerch,
+		"/v1/read":   websql.Websqlread,
 		"/v1/upload": fileupload.FIleupload,
+		"/v1/add":    websql.WebsqlAdd,
+		"/v1/update": websql.WebsqlUpdate,
 	}
 	urldata := urlAnalysis(r.URL.Path)
 	if len(urldata) > 1 {
@@ -146,7 +148,7 @@ func (t *Htmldata) setupdatabase(cfg *table.Config) error {
 		return err
 	}
 	t.sql = cfg
-	t.sqlread, _ = websqlread.Setup(cfg)
+	t.sqlread, _ = websql.Setup(cfg)
 
 	return nil
 }

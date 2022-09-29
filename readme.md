@@ -32,3 +32,9 @@
 |DB_USER|SQLの接続ユーザ||
 |DB_PASS|SQLの接続ユーザパスワード||
 |DB_FILE|SQLite3の接続ファイルパス|test.db|
+
+## CURLによるテスト
+
+curl localhost:8080/v1/add/booknames/  -X POST -d "name=bagaet" --data-urlencode "title=はなび" --data-urlencode "ext=げた"
+curl localhost:8080/v1/add/filelists/  -X POST --data-urlencode "name=はなび" --data-urlencode "pdfpass=げた" --data-urlencode "zippass=gaega.zip"
+curl localhost:8080/v1/add/copyfile/  -X POST --data-urlencode "zippass=はなび" -d "filesize=130" -d "copyflag=1"
