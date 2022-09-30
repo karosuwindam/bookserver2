@@ -59,9 +59,8 @@ func createReadCmd(tname string, stu interface{}, keyword map[string]string, key
 	}
 	cmd := "SELECT * FROM" + " " + tname
 	if len(keyword) == 0 {
-		return cmd, nil
-	}
-	if len(keytype) != 0 {
+		// return cmd, nil
+	} else {
 		cmd += " " + "WHERE" + " " + convertCmd(stu, keyword, keytype)
 
 	}
